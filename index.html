@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Huskeliste</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#F4F6F1" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Huskeliste" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="icon" href="icon-192.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+* { box-sizing: border-box; }
+:root {
+  --bg: #F4F6F1;
+  --bg-2: #ECF0E8;
+  --seg: #E4EADF;
+  --surface: #FFFFFF;
+  --ink: #23312A;
+  --ink-2: #4A5A51;
+  --muted: #7E8C85;
+  --line: #E0E6DC;
+  --line-2: #CDD6C8;
+  --check: #B9C4BC;
+  --accent: #3F6B54;
+  --accent-2: #335A46;
+  --accent-soft: #DCE9E1;
+  --accent-tint: #EEF5F0;
+  --warm: #C97A46;
+  --warm-ink: #8A4A21;
+  --warm-soft: #F5E3D5;
+  --warm-tint: #FCF5EF;
+  --gen: #4F6FA5;
+  --gen-ink: #34507F;
+  --gen-soft: #D6E0F0;
+  --gen-tint: #EFF3FA;
+  --danger: #B9503A;
+  --danger-soft: #F7E3DD;
+  --sh-xs: 0 1px 1px rgba(35,49,42,.04);
+  --sh-sm: 0 1px 2px rgba(35,49,42,.06), 0 2px 6px rgba(35,49,42,.05);
+  --sh-md: 0 10px 30px rgba(35,49,42,.12), 0 2px 6px rgba(35,49,42,.06);
+}
+html { background: var(--bg); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 15px; line-height: 1.4; color: var(--ink); background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+body.sheet-open { overflow: hidden; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+.ic { width: 18px; height: 18px; flex-shrink: 0; display: block; }
+
+/* ---------- Toppfelt ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(244,246,241,.9);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px); backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--line);
+  padding-top: env(safe-area-inset-top);
+}
+.topbar-inner { max-width: 1240px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 14px; }
+.brand { display: flex; align-items: center; gap: 9px; font-family: 'Fraunces', Georgia, serif; font-size: 21px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap; }
+.logo { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); color: #fff; display: grid; place-items: center; box-shadow: 0 2px 6px rgba(63,107,84,.3); }
+.logo .ic { width: 18px; height: 18px; }
+.views { display: flex; background: var(--seg); border-radius: 999px; padding: 3px; gap: 2px; margin: 0 auto; }
+.views button { border: 0; background: transparent; padding: 7px 18px; border-radius: 999px; font-weight: 600; font-size: 14px; color: var(--ink-2); transition: background .15s, color .15s; }
+.views button:hover { color: var(--ink); }
+.views button.is-active { background: var(--surface); color: var(--ink); box-shadow: var(--sh-sm); }
+.top-actions { display: flex; align-items: center; gap: 8px; }
+.pill { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 13px; font-weight: 600; font-size: 13.5px; color: var(--ink-2); transition: border-color .15s, background .15s; }
+.pill:hover { border-color: var(--line-2); color: var(--ink); }
+.pill .ic { width: 17px; height: 17px; color: var(--accent); }
+.pill.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pill.is-active .ic { color: #fff; }
+.badge { min-width: 20px; height: 20px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 700; display: inline-grid; place-items: center; padding: 0 6px; }
+.pill.is-active .badge { background: rgba(255,255,255,.22); color: #fff; }
+.icon-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; color: var(--ink-2); padding: 0; transition: background .15s, color .15s, border-color .15s; }
+.icon-btn:hover { color: var(--accent); border-color: var(--line-2); }
+.icon-btn.ghost { border-color: transparent; background: transparent; }
+.icon-btn.ghost:hover { background: var(--bg-2); }
+.icon-btn.sm { width: 28px; height: 28px; border-radius: 8px; }
+.icon-btn.sm .ic { width: 16px; height: 16px; }
+
+/* ---------- Innhold ---------- */
+.wrap { max-width: 1240px; margin: 0 auto; padding: 4px 16px calc(110px + env(safe-area-inset-bottom)); }
+.narrow { max-width: 760px; margin-left: auto; margin-right: auto; }
+.toolbar { display: flex; align-items: center; gap: 10px; margin: 16px 0 12px; min-height: 40px; }
+.toolbar.narrow { margin-left: auto; margin-right: auto; }
+.nav-group { display: flex; gap: 6px; }
+.period { display: flex; align-items: baseline; gap: 10px; min-width: 0; flex-wrap: wrap; }
+.period-main { font-family: 'Fraunces', Georgia, serif; font-size: 25px; font-weight: 600; letter-spacing: -.01em; line-height: 1.1; }
+.period-sub { color: var(--muted); font-size: 14px; }
+.spacer { flex: 1; }
+.btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 7px 12px; font-weight: 600; font-size: 13.5px; color: var(--ink-2); white-space: nowrap; transition: border-color .15s, background .15s, color .15s; }
+.btn:hover { border-color: var(--line-2); color: var(--ink); }
+.btn .ic { width: 16px; height: 16px; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { background: var(--accent-2); }
+.btn.warm { background: var(--warm); border-color: var(--warm); color: #fff; }
+.btn.wide { width: 100%; justify-content: center; padding: 10px 12px; }
+.btn:disabled { opacity: .55; cursor: default; }
+.search { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; flex: 1; min-width: 0; transition: border-color .15s, box-shadow .15s; }
+.search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-tint); }
+.search .ic { color: var(--muted); }
+.search input { border: 0; outline: 0; background: transparent; flex: 1; padding: 10px 0; font-size: 16px; min-width: 0; }
+.search input::-webkit-search-cancel-button { cursor: pointer; }
+
+/* Hurtig-legg-til */
+.quickadd { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 6px 6px 6px 12px; box-shadow: var(--sh-sm); transition: border-color .15s, box-shadow .15s; margin-bottom: 4px; }
+.quickadd:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-tint), var(--sh-sm); }
+.qa-icon { color: var(--accent); display: grid; place-items: center; }
+.quickadd input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 16px; padding: 9px 0; }
+.quickadd input::placeholder { color: #9AA69F; }
+.qa-date { border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 7px 10px; font-size: 13.5px; font-weight: 600; color: var(--ink-2); display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; transition: border-color .15s; }
+.qa-date:hover { border-color: var(--accent); color: var(--accent); }
+.qa-date .ic { width: 16px; height: 16px; }
+.qa-submit { border: 0; background: var(--accent); color: #fff; border-radius: 10px; padding: 8px 14px; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; transition: background .15s, opacity .15s; }
+.qa-submit:hover { background: var(--accent-2); }
+.qa-submit .ic { display: none; }
+
+/* Bannere */
+.banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-radius: 12px; padding: 9px 10px 9px 13px; margin-top: 12px; font-size: 14px; }
+.banner > .ic { width: 18px; height: 18px; }
+.banner .b-text { flex: 1; min-width: 180px; }
+.banner .b-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.banner.warn { background: var(--warm-tint); border: 1px solid #F0DAC7; color: var(--warm-ink); }
+.banner.info { background: var(--accent-tint); border: 1px solid var(--accent-soft); color: var(--accent-2); }
+.banner.error { background: var(--danger-soft); border: 1px solid #EBC5BA; color: #7E2F1F; }
+.banner .btn { padding: 6px 10px; }
+
+.loading { padding: 60px 0; text-align: center; color: var(--muted); }
+
+/* ---------- Oppgavekort ---------- */
+.task {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 9px 10px; box-shadow: var(--sh-xs); cursor: pointer; position: relative;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: pan-y;
+  transition: border-color .15s, box-shadow .15s, opacity .25s, background .2s;
+}
+.task:hover { border-color: var(--line-2); box-shadow: var(--sh-sm); }
+.task:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.check {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; padding: 0; margin-top: -1px;
+  border: 2px solid var(--check); background: var(--surface); color: transparent;
+  display: grid; place-items: center; position: relative;
+  transition: border-color .15s, background .15s, color .15s, transform .15s;
+}
+.check::before { content: ""; position: absolute; inset: -9px; }
+.check .ic { width: 13px; height: 13px; }
+.check:hover { border-color: var(--accent); color: #C9DCD0; }
+.is-done > .check, .is-done .check { background: var(--accent); border-color: var(--accent); color: #fff; }
+.t-body { flex: 1; min-width: 0; }
+.t-title { font-size: 14.5px; font-weight: 500; line-height: 1.35; overflow-wrap: break-word; -webkit-hyphens: auto; hyphens: auto; }
+.is-done .t-title { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(126,140,133,.55); }
+.t-meta { display: flex; flex-wrap: wrap; gap: 3px 10px; margin-top: 4px; color: var(--muted); font-size: 12.5px; align-items: center; }
+.t-meta span { display: inline-flex; align-items: center; gap: 4px; }
+.t-meta .ic { width: 14px; height: 14px; }
+.task.is-overdue { box-shadow: inset 3px 0 0 var(--warm), var(--sh-xs); }
+.task.is-overdue .m-date { color: var(--warm); font-weight: 600; }
+.task.just-done { opacity: .7; }
+.t-time { display: inline-block; font-size: 12.5px; font-weight: 700; color: var(--accent); background: var(--accent-tint); border-radius: 6px; padding: 1px 6px; margin-right: 7px; font-variant-numeric: tabular-nums; vertical-align: 1px; text-decoration: none; }
+.is-done .t-time { color: var(--muted); background: var(--bg-2); }
+.task.is-general { background: var(--gen-tint); border-color: var(--gen-soft); box-shadow: inset 3px 0 0 var(--gen), var(--sh-xs); }
+.task.is-general .check { border-color: #A8B9D8; background: #fff; }
+.task.is-general.is-done .check { background: var(--gen); border-color: var(--gen); }
+.day-general { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; border-radius: 10px; }
+.gen-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--gen-ink); padding: 0 3px; display: flex; align-items: center; gap: 5px; }
+.gen-label .ic { width: 13px; height: 13px; }
+.g-general .group-h { color: var(--gen-ink); }
+.t-del { position: absolute; top: 5px; right: 5px; width: 26px; height: 26px; border-radius: 8px; border: 0; padding: 0; background: var(--surface); color: var(--muted); display: none; place-items: center; box-shadow: var(--sh-sm); }
+.t-del .ic { width: 15px; height: 15px; }
+.t-del:hover { color: var(--danger); background: var(--danger-soft); }
+@media (hover: hover) and (pointer: fine) {
+  .task:hover .t-del { display: grid; }
+}
+body.is-dragging .t-del, .drag-ghost .t-del { display: none !important; }
+.day-list, .g-list, .day-general { position: relative; }
+.swipe-bg { position: absolute; border-radius: 12px; background: #E9C3B9; color: #fff; display: flex; align-items: center; justify-content: flex-end; gap: 7px; padding-right: 18px; font-weight: 700; font-size: 14px; z-index: 0; transition: background .15s; }
+.swipe-bg .ic { width: 18px; height: 18px; }
+.swipe-bg.armed { background: var(--danger); }
+.task.swiping { transition: none; z-index: 1; }
+.task.swipe-back { transition: transform .2s ease; z-index: 1; }
+.task.swipe-out { transition: transform .2s ease, opacity .2s ease; opacity: 0; z-index: 1; }
+.task.just-done .check { animation: pop .45s ease; }
+@keyframes pop { 0% { transform: scale(.7); } 55% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+/* ---------- Ukevisning ---------- */
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; align-items: stretch; margin-top: 14px; }
+.day { border-radius: 14px; padding: 10px 7px 8px; min-height: 250px; display: flex; flex-direction: column; border: 1px solid transparent; transition: background .15s, border-color .15s; }
+.day.is-today { background: var(--warm-tint); border-color: #F1DECD; }
+.day-head { display: flex; align-items: center; gap: 6px; padding: 0 3px 9px; min-height: 36px; }
+.dh-desk { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.dh-name { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.dh-num { font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 600; line-height: 1; }
+.is-today .dh-num { background: var(--warm); color: #fff; border-radius: 999px; min-width: 32px; height: 32px; display: grid; place-items: center; font-size: 17px; padding: 0 6px; }
+.is-today .dh-name { color: var(--warm-ink); }
+.is-past .dh-desk, .is-past .dh-mob { opacity: .55; }
+.dh-mob { display: none; align-items: baseline; gap: 8px; flex: 1; min-width: 0; }
+.dh-long { font-weight: 700; font-size: 15.5px; }
+.dh-date { color: var(--muted); font-size: 13.5px; }
+.dh-today { font-size: 11.5px; font-weight: 700; color: #fff; background: var(--warm); border-radius: 999px; padding: 2px 8px; align-self: center; }
+.dh-panel { flex: 1; font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 600; }
+.dh-tools { display: flex; gap: 2px; margin-left: auto; }
+.head-add { display: none !important; }
+.day-list { display: flex; flex-direction: column; gap: 6px; min-height: 6px; }
+.add-btn { margin-top: 6px; border: 0; background: transparent; color: var(--muted); text-align: left; padding: 8px 6px; border-radius: 9px; font-size: 13.5px; font-weight: 500; display: flex; gap: 6px; align-items: center; transition: background .15s, color .15s; }
+.add-btn .ic { width: 16px; height: 16px; }
+.add-btn:hover { background: rgba(63,107,84,.07); color: var(--accent); }
+.inline-add { margin-top: 6px; }
+.ia-input { width: 100%; border: 1px solid var(--accent); border-radius: 11px; padding: 9px 11px; font-size: 16px; outline: 0; background: var(--surface); box-shadow: 0 0 0 4px var(--accent-tint); }
+.done-toggle { margin-top: 8px; border: 0; background: transparent; color: var(--muted); font-size: 12.5px; font-weight: 600; padding: 5px 6px; border-radius: 8px; display: flex; align-items: center; gap: 6px; align-self: flex-start; transition: background .15s, color .15s; }
+.done-toggle .ic { width: 15px; height: 15px; }
+.done-toggle .chev { width: 14px; height: 14px; transition: transform .2s; }
+.done-toggle.is-open .chev { transform: rotate(180deg); }
+.done-toggle:hover { color: var(--accent); background: rgba(63,107,84,.07); }
+.day-done { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
+.day-done .task { background: rgba(255,255,255,.55); box-shadow: none; border-style: dashed; }
+
+.count { font-size: 12px; font-weight: 700; color: var(--muted); background: var(--bg-2); border-radius: 999px; padding: 2px 8px; font-family: 'Inter', sans-serif; }
+
+@media (max-width: 899px) {
+  .week { grid-template-columns: 1fr; gap: 8px; }
+  .day { min-height: 0; background: var(--surface); border-color: var(--line); padding: 8px 10px 10px; }
+  .day.is-today { background: var(--warm-tint); border-color: #EFD7C3; }
+  .day.is-empty { padding-bottom: 4px; }
+  .day.is-empty .day-list { display: none; }
+  .day-head { padding: 0 0 6px; }
+  .dh-desk { display: none; }
+  .dh-mob { display: flex; }
+  .head-add { display: grid !important; }
+  .day:not(.panel) > .add-btn { display: none; }
+    }
+
+/* ---------- Månedsvisning ---------- */
+.m-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; margin-top: 14px; }
+.month { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: var(--sh-xs); }
+.m-head { display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid var(--line); background: var(--bg-2); }
+.m-head span { padding: 8px 4px; text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.m-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.m-cell { min-height: 116px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 5px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; min-width: 0; background: var(--surface); transition: background .12s; position: relative; }
+.m-cell:nth-child(7n) { border-right: 0; }
+.m-cell:hover { background: #FAFBF8; }
+.m-cell.is-out { background: #F8FAF6; }
+.m-cell.is-out .m-num { color: #ADB8B1; }
+.m-cell.is-selected { background: var(--accent-tint); box-shadow: inset 0 0 0 2px var(--accent); }
+.m-num { font-size: 13px; font-weight: 600; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; flex-shrink: 0; }
+.m-cell.is-today .m-num { background: var(--warm); color: #fff; }
+.m-chip { font-size: 12px; line-height: 1.3; padding: 3px 6px; border-radius: 6px; background: var(--accent-tint); color: var(--accent-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-left: 3px solid var(--accent); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.m-chip:hover { background: var(--accent-soft); }
+.m-chip b { font-weight: 700; font-variant-numeric: tabular-nums; }
+.m-chip.is-overdue { background: var(--warm-tint); color: var(--warm-ink); border-left-color: var(--warm); }
+.m-more { font-size: 11.5px; color: var(--muted); padding-left: 4px; font-weight: 600; }
+.m-dots { display: none; gap: 3px; flex-wrap: wrap; justify-content: center; max-width: 34px; }
+.m-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.m-dot.is-overdue { background: var(--warm); }
+.m-done { margin-top: auto; font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 3px; font-weight: 600; }
+.m-done .ic { width: 12px; height: 12px; }
+.m-side { position: sticky; top: 76px; }
+.day.panel { background: var(--surface); border: 1px solid var(--line); min-height: 0; padding: 12px 10px 10px; box-shadow: var(--sh-xs); }
+.day.panel.is-today { background: var(--warm-tint); }
+.day.panel .day-head { padding-bottom: 10px; }
+.day.panel .head-add { display: none !important; }
+.empty-day { color: var(--muted); font-size: 13.5px; padding: 4px 4px 2px; }
+@media (max-width: 1099px) {
+  .m-layout { grid-template-columns: 1fr; }
+  .m-side { position: static; }
+}
+@media (max-width: 720px) {
+  .m-cell { min-height: 56px; padding: 4px 2px; align-items: center; gap: 4px; }
+  .m-chip, .m-more, .m-done { display: none; }
+  .m-dots { display: flex; }
+  .m-head span { padding: 6px 0; font-size: 11px; letter-spacing: .02em; }
+  .m-num { font-size: 13px; }
+}
+
+/* ---------- Listevisning ---------- */
+.group { margin-top: 20px; border-radius: 14px; transition: background .15s; }
+.group-h { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 600; }
+.g-overdue .group-h { color: var(--warm-ink); }
+.g-list { display: flex; flex-direction: column; gap: 6px; min-height: 6px; }
+.empty-mini { color: var(--muted); font-size: 14px; padding: 10px 2px; }
+.empty { text-align: center; padding: 50px 20px; color: var(--muted); }
+.empty .e-icon { width: 54px; height: 54px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; margin: 0 auto 14px; }
+.empty .e-icon .ic { width: 26px; height: 26px; }
+.empty h3 { margin: 0 0 6px; color: var(--ink); font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 20px; }
+.empty p { margin: 0; }
+.link-btn { border: 0; background: none; color: var(--accent); font-weight: 600; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
+.list-foot { margin-top: 26px; text-align: center; color: var(--muted); font-size: 14px; }
+
+/* ---------- Utført ---------- */
+.done-group { margin-top: 18px; }
+.done-group h3 { margin: 0 0 8px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.done-group .g-list .task { background: rgba(255,255,255,.7); }
+.more-done { margin-top: 24px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.done-hint { text-align: center; color: var(--muted); font-size: 13px; margin-top: 10px; }
+
+/* ---------- Dra og slipp ---------- */
+.drag-ghost { position: fixed !important; left: 0; top: 0; z-index: 500; pointer-events: none; margin: 0 !important; box-shadow: 0 14px 34px rgba(35,49,42,.24) !important; opacity: .97; will-change: transform; }
+.drag-src { opacity: .28; }
+body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select: none; -webkit-user-select: none; }
+.drop-hover { background: var(--accent-tint) !important; border-color: var(--accent) !important; box-shadow: inset 0 0 0 2px var(--accent) !important; }
+.drop-line { height: 3px; border-radius: 3px; background: var(--accent); margin: -1px 2px; flex-shrink: 0; }
+
+/* ---------- Detaljpanel ---------- */
+.sheet-root { position: fixed; inset: 0; z-index: 200; pointer-events: none; }
+.sheet-root.open { pointer-events: auto; }
+.sheet-backdrop { position: absolute; inset: 0; background: rgba(35,49,42,.28); opacity: 0; transition: opacity .22s; }
+.sheet-root.open .sheet-backdrop { opacity: 1; }
+.sheet {
+  position: absolute; top: 0; right: 0; bottom: 0; width: min(460px, 100%);
+  background: var(--surface); box-shadow: -12px 0 40px rgba(35,49,42,.14);
+  transform: translateX(104%); transition: transform .28s cubic-bezier(.2,.8,.2,1);
+  display: flex; flex-direction: column;
+}
+.sheet-root.open .sheet { transform: none; }
+.sheet.file-over { box-shadow: inset 0 0 0 3px var(--accent), -12px 0 40px rgba(35,49,42,.14); }
+.sheet-grip { display: none; }
+.sheet-head { display: flex; align-items: flex-start; gap: 12px; padding: calc(16px + env(safe-area-inset-top)) 14px 12px 16px; border-bottom: 1px solid var(--line); }
+.sheet-title { flex: 1; margin: 4px 0 0; font-family: 'Fraunces', Georgia, serif; font-size: 21px; font-weight: 600; }
+.check.big { width: 28px; height: 28px; margin-top: 2px; }
+.check.big .ic { width: 16px; height: 16px; }
+.d-title { flex: 1; border: 0; outline: 0; resize: none; font-family: 'Fraunces', Georgia, serif; font-size: 21px; font-weight: 600; line-height: 1.3; padding: 2px 0; background: transparent; min-height: 30px; overflow: hidden; }
+.is-done .d-title { color: var(--muted); }
+.sheet-body { flex: 1; overflow: auto; padding: 2px 16px 16px; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.d-section { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.d-section:last-child { border-bottom: 0; }
+.d-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 9px; }
+.d-date { font-weight: 600; font-size: 15.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.d-date .ic { color: var(--accent); }
+.d-date .late { color: var(--warm); font-size: 13px; font-weight: 700; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 7px 12px; font-size: 13.5px; font-weight: 600; color: var(--ink-2); position: relative; display: inline-flex; align-items: center; gap: 6px; transition: border-color .15s, background .15s, color .15s; }
+.chip .ic { width: 15px; height: 15px; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip-pick { cursor: pointer; overflow: hidden; }
+.chip-pick input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: 0; padding: 0; margin: 0; }
+.d-notes { width: 100%; min-height: 130px; border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; resize: vertical; background: var(--bg); font-size: 16px; line-height: 1.5; outline: 0; transition: border-color .15s, box-shadow .15s, background .15s; }
+.d-notes:focus { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 4px var(--accent-tint); }
+.img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.img-thumb { aspect-ratio: 1; border-radius: 11px; overflow: hidden; border: 1px solid var(--line); padding: 0; background: var(--bg-2); display: grid; place-items: center; }
+.img-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.img-add { aspect-ratio: 1; border-radius: 11px; border: 1.5px dashed var(--line-2); background: var(--bg); color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 6px; text-align: center; transition: border-color .15s, color .15s; }
+.img-add:hover { border-color: var(--accent); color: var(--accent); }
+.img-add .ic { width: 22px; height: 22px; }
+.spinner { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--accent-soft); border-top-color: var(--accent); animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.d-hint { color: var(--muted); font-size: 12.5px; margin: 10px 0 0; }
+.d-time-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.d-time-label { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; color: var(--ink-2); margin-right: 2px; }
+.d-time-label .ic { color: var(--accent); width: 17px; height: 17px; }
+.time-field { width: auto; min-width: 120px; padding: 7px 10px; font-variant-numeric: tabular-nums; }
+.sheet-foot { display: flex; align-items: center; gap: 10px; padding: 11px 14px calc(11px + env(safe-area-inset-bottom)) 16px; border-top: 1px solid var(--line); }
+.d-meta { color: var(--muted); font-size: 12.5px; flex: 1; line-height: 1.4; }
+.danger-btn { border: 1px solid transparent; background: transparent; color: var(--danger); border-radius: 10px; padding: 7px 11px; font-weight: 600; font-size: 13.5px; display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; transition: background .15s; }
+.danger-btn .ic { width: 16px; height: 16px; }
+.danger-btn:hover { background: var(--danger-soft); }
+.danger-btn.confirm { background: var(--danger); color: #fff; }
+.m-p { margin: 0 0 12px; line-height: 1.5; }
+.m-p.muted { color: var(--muted); font-size: 13.5px; }
+.m-sub { margin: 18px 0 8px; font-weight: 700; font-size: 14px; }
+.form { display: flex; flex-direction: column; gap: 8px; }
+.field { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 16px; background: var(--bg); outline: 0; }
+.field:focus { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 4px var(--accent-tint); }
+.msg-ok { color: var(--accent); font-weight: 600; font-size: 14px; margin: 12px 0 0; }
+.msg-err { color: var(--danger); font-weight: 600; font-size: 14px; margin: 12px 0 0; }
+.help { margin: 0; padding-left: 20px; line-height: 1.55; color: var(--ink-2); }
+.help li { margin-bottom: 7px; }
+.version { color: #A5B0A9; font-size: 12px; margin-top: 18px; }
+@media (max-width: 759px) {
+  .sheet { top: auto; left: 0; width: 100%; max-height: 92vh; max-height: 92dvh; border-radius: 20px 20px 0 0; transform: translateY(104%); box-shadow: 0 -10px 40px rgba(35,49,42,.16); }
+  .sheet-grip { display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--line-2); margin: 8px auto 0; flex-shrink: 0; }
+  .sheet-head { padding-top: 10px; }
+}
+@media (pointer: coarse) { .only-fine { display: none; } }
+
+/* ---------- Lysbilde ---------- */
+.lightbox { position: fixed; inset: 0; z-index: 300; background: rgba(22,28,24,.94); display: flex; flex-direction: column; animation: fadeIn .18s ease; }
+@keyframes fadeIn { from { opacity: 0; } }
+.lb-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: calc(10px + env(safe-area-inset-top)) 12px 10px; color: #fff; }
+.lb-btn { border: 0; background: rgba(255,255,255,.12); color: #fff; border-radius: 10px; padding: 8px 12px; display: inline-flex; align-items: center; gap: 7px; font-weight: 600; font-size: 14px; }
+.lb-btn:hover { background: rgba(255,255,255,.2); }
+.lb-btn.confirm { background: var(--danger); }
+.lb-count { font-size: 13px; opacity: .7; }
+.lb-img { flex: 1; display: grid; place-items: center; padding: 8px; min-height: 0; position: relative; }
+.lb-img img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; }
+.lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); color: #fff; display: grid; place-items: center; }
+.lb-nav.prev { left: 12px; } .lb-nav.next { right: 12px; }
+.lb-bottom { height: calc(14px + env(safe-area-inset-bottom)); }
+
+/* ---------- Hurtigmeny, varsler ---------- */
+.popover { position: fixed; z-index: 260; background: var(--surface); border: 1px solid var(--line); border-radius: 13px; box-shadow: var(--sh-md); padding: 6px; width: 236px; animation: popIn .14s ease; }
+@keyframes popIn { from { opacity: 0; transform: translateY(-4px); } }
+.popover button, .popover label { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px; border: 0; background: transparent; padding: 9px 10px; border-radius: 8px; font-size: 14px; font-weight: 500; text-align: left; position: relative; cursor: pointer; }
+.popover button:hover, .popover label:hover { background: var(--bg-2); }
+.popover button.is-active { color: var(--accent); font-weight: 700; }
+.popover .sub { color: var(--muted); font-size: 12.5px; font-weight: 500; }
+.popover hr { border: 0; border-top: 1px solid var(--line); margin: 4px 2px; }
+.popover label input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+.toasts { position: fixed; left: 0; right: 0; bottom: calc(18px + env(safe-area-inset-bottom)); display: flex; justify-content: center; z-index: 400; pointer-events: none; padding: 0 12px; }
+.toast { pointer-events: auto; background: #2B4034; color: #fff; border-radius: 13px; padding: 9px 8px 9px 15px; display: flex; align-items: center; gap: 14px; box-shadow: 0 12px 30px rgba(20,30,24,.22); font-size: 14.5px; max-width: 100%; animation: toastIn .22s ease; }
+.toast.error { background: #8E3B2A; }
+body.is-dragging .toast { pointer-events: none; opacity: .3; transition: opacity .15s; }
+.toast.out { opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; }
+.toast button { background: rgba(255,255,255,.1); border: 0; color: #CDEBD8; font-weight: 700; padding: 6px 11px; border-radius: 9px; }
+.toast button:hover { background: rgba(255,255,255,.18); }
+.toast span { padding: 2px 0; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px); } }
+
+/* ---------- Mobil ---------- */
+@media (max-width: 720px) {
+  .topbar-inner { flex-wrap: wrap; gap: 10px; padding: 9px 14px 10px; }
+  .brand { font-size: 20px; }
+  .views { order: 3; width: 100%; margin: 0; }
+  .views button { flex: 1; padding: 8px 6px; }
+  .top-actions { margin-left: auto; }
+  .wrap { padding-left: 12px; padding-right: 12px; }
+  .toolbar { margin: 12px 0 10px; }
+  .period-main { font-size: 22px; }
+  .period-sub { font-size: 13px; }
+  .qa-submit { padding: 9px; }
+  .qa-submit .lbl { display: none; }
+  .qa-submit .ic { display: block; }
+  .qa-date .lbl-long { display: none; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="logo" id="logo"></span><span>Huskeliste</span></div>
+    <nav class="views" aria-label="Visning">
+      <button type="button" data-act="view" data-view="uke">Uke</button>
+      <button type="button" data-act="view" data-view="maaned">Måned</button>
+      <button type="button" data-act="view" data-view="liste">Liste</button>
+    </nav>
+    <div class="top-actions">
+      <button type="button" class="pill" data-act="view" data-view="utfort" id="btn-done"><span id="done-ic"></span><span>Utført</span><span class="badge" id="done-badge" hidden></span></button>
+      <button type="button" class="icon-btn" data-act="menu" id="btn-menu" aria-label="Konto og hjelp"></button>
+    </div>
+  </div>
+</header>
+<div class="wrap">
+  <div id="toolbar"></div>
+  <div class="quickadd" id="quickadd">
+    <span class="qa-icon" id="qa-icon"></span>
+    <input id="qa-input" type="text" placeholder="Ny oppgave …" autocomplete="off" enterkeyhint="done" maxlength="300" aria-label="Ny oppgave" />
+    <button type="button" class="qa-date" id="qa-date" data-act="qa-date" aria-label="Velg dag for ny oppgave"></button>
+    <button type="button" class="qa-submit" data-act="qa-add" id="qa-submit" aria-label="Legg til oppgave"><span class="lbl">Legg til</span></button>
+  </div>
+  <div id="banners"></div>
+  <main id="content"><div class="loading">Henter oppgaver …</div></main>
+</div>
+<div id="sheet-root" class="sheet-root"></div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<input type="file" id="file-input" accept="image/*" multiple hidden />
+
+<script type="module">
+/* =====================================================================
+   HUSKELISTE
+   Frittstående app for GitHub Pages med Firebase (Firestore + innlogging).
+   Uten Firebase-oppsett kjører appen i demomodus og lagrer i nettleseren.
+   ===================================================================== */
+
+// ---------- Firebase-oppsett (lim inn verdiene fra Firebase-konsollen) ----------
+const firebaseConfig = {
+  apiKey: "AIzaSyCDcPIaEq7FT32wT9otbb-PtiNGRvNvMw8",
+  authDomain: "huskeliste-3caba.firebaseapp.com",
+  projectId: "huskeliste-3caba",
+  storageBucket: "huskeliste-3caba.firebasestorage.app",
+  messagingSenderId: "264642416687",
+  appId: "1:264642416687:web:fd0e880b543e47b099f6da"
+};
+
+const VERSJON = "1.0";
+const FB_VERSION = "10.13.0";
+const DONE_WINDOW_DAYS = 30;            // så mange dager med utførte oppgaver holdes synkronisert hele tiden
+const USERNAME_DOMAIN = "@huskeliste.lokal";
+const MAX_IMAGES = 30;
+const DEMO_EKSEMPLER = false;           // fyll demomodus med eksempeloppgaver første gang
+const params = new URLSearchParams(location.search);
+const LOCAL_MODE = params.has("lokal") || !firebaseConfig.apiKey || firebaseConfig.apiKey.indexOf("SETT_INN") === 0;
+const SEED = LOCAL_MODE && (DEMO_EKSEMPLER || params.has("eksempel"));
+
+// ---------- Ikoner ----------
+const P = {
+  check: '<path d="M5.5 12.5l4 4 9-9.5"/>',
+  left: '<path d="M15 5l-7 7 7 7"/>',
+  right: '<path d="M9 5l7 7-7 7"/>',
+  down: '<path d="M6 9l6 6 6-6"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  push: '<path d="M4 12h12"/><path d="M11.5 7l5 5-5 5"/><path d="M20 5v14"/>',
+  notes: '<path d="M5 7h14M5 12h14M5 17h9"/>',
+  image: '<rect x="3" y="4.5" width="18" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-4.5-4.5L8 19.5"/>',
+  cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  menu: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',
+  done: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/>',
+  back: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  alert: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.5"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.5v.5"/>',
+  cloud: '<path d="M7 18h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 9.6 4.2 4.2 0 0 0 7 18z"/><path d="M4 4l16 16"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>',
+  repeat: '<path d="M17 2.5l3 3-3 3"/><path d="M4 11V9.5a4 4 0 0 1 4-4h12"/><path d="M7 21.5l-3-3 3-3"/><path d="M20 13v1.5a4 4 0 0 1-4 4H4"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
+};
+function svg(name, cls = "", sw = 2) {
+  return `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name]}</svg>`;
+}
+
+// ---------- Hjelpefunksjoner ----------
+const $ = (s, r = document) => r.querySelector(s);
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function newId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function lsGet(k, d) { try { const v = localStorage.getItem("huskeliste:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem("huskeliste:" + k, JSON.stringify(v)); } catch (e) {} }
+
+const MND = ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"];
+const MNDK = ["jan", "feb", "mar", "apr", "mai", "jun", "jul", "aug", "sep", "okt", "nov", "des"];
+const DAG = ["søndag", "mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag"];
+const DAGK = ["søn", "man", "tir", "ons", "tor", "fre", "lør"];
+const WD = ["Man", "Tir", "Ons", "Tor", "Fre", "Lør", "Søn"];
+
+function keyOf(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function dateOf(k) { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); }
+function todayKey() { return keyOf(new Date()); }
+function addDays(k, n) { const d = dateOf(k); d.setDate(d.getDate() + n); return keyOf(d); }
+function diffDays(a, b) { return Math.round((dateOf(b) - dateOf(a)) / 864e5); }
+function mondayOf(k) { const d = dateOf(k); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return keyOf(d); }
+function isoWeek(k) {
+  const d = dateOf(k); d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+  const jan4 = new Date(d.getFullYear(), 0, 4);
+  return 1 + Math.round(((d - jan4) / 864e5 - 3 + (jan4.getDay() + 6) % 7) / 7);
+}
+function yr(d) { return d.getFullYear() !== new Date().getFullYear() ? " " + d.getFullYear() : ""; }
+function shortLabel(k) { const d = dateOf(k); return `${DAGK[d.getDay()]} ${d.getDate()}. ${MNDK[d.getMonth()]}${yr(d)}`; }
+function longLabel(k) { const d = dateOf(k); return `${cap(DAG[d.getDay()])} ${d.getDate()}. ${MND[d.getMonth()]}${yr(d)}`; }
+function relLabel(k) {
+  if (!k) return "Generell";
+  const n = diffDays(todayKey(), k);
+  if (n === 0) return "I dag"; if (n === 1) return "I morgen"; if (n === -1) return "I går";
+  return shortLabel(k);
+}
+function relLong(k) {
+  if (!k) return "Generell";
+  const n = diffDays(todayKey(), k);
+  const pre = n === 0 ? "I dag · " : n === 1 ? "I morgen · " : n === -1 ? "I går · " : "";
+  return pre + longLabel(k);
+}
+function movedLabel(k) {
+  if (!k) return "generelle";
+  const n = diffDays(todayKey(), k);
+  if (n === 0) return "i dag"; if (n === 1) return "i morgen";
+  const d = dateOf(k); return `${DAG[d.getDay()]} ${d.getDate()}. ${MNDK[d.getMonth()]}${yr(d)}`;
+}
+function stamp(ms) {
+  const d = new Date(ms);
+  return `${d.getDate()}. ${MNDK[d.getMonth()]}${yr(d)} kl. ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+function rangeLabel(a, b) {
+  const A = dateOf(a), B = dateOf(b);
+  if (A.getMonth() === B.getMonth()) return `${A.getDate()}.–${B.getDate()}. ${MND[B.getMonth()]}${yr(B)}`;
+  return `${A.getDate()}. ${MNDK[A.getMonth()]} – ${B.getDate()}. ${MNDK[B.getMonth()]}${yr(B)}`;
+}
+function plural(n, one, many) { return `${n} ${n === 1 ? one : many}`; }
+
+// ---------- Tilstand ----------
+const S = {
+  view: ["uke", "maaned", "liste"].includes(lsGet("view", "uke")) ? lsGet("view", "uke") : "uke",
+  prevView: "uke",
+  anchor: todayKey(), selected: todayKey(), qaDate: todayKey(),
+  search: "", doneSearch: "",
+  openDone: new Set(), inlineAdd: null,
+  live: new Map(), older: new Map(), loaded: false,
+  fetched: new Set(), doneCursor: null, allDoneLoaded: false, loadingDone: false,
+  justDone: new Set(), uploading: new Map(),
+  user: null, error: "", offline: !navigator.onLine,
+  sheet: null, lb: null, renderBlocked: false, renderPending: false, renderingNow: false,
+  lastToday: todayKey(), toolbarSig: "",
+  accountMsg: "", accountErr: "", accountBusy: false,
+  localNoticeHidden: lsGet("localNoticeHidden", false),
+};
+if (S.view === "maaned") S.qaDate = S.selected;
+
+const byOrder = (a, b) => (a.order - b.order) || (a.createdAt - b.createdAt);
+// Innenfor en dag: oppgaver uten klokkeslett øverst (i egen rekkefølge), deretter etter klokkeslett
+function byDay(a, b) {
+  const at = a.time || "", bt = b.time || "";
+  if (!at !== !bt) return at ? 1 : -1;
+  if (at && bt && at !== bt) return at < bt ? -1 : 1;
+  return byOrder(a, b);
+}
+const byDateOrder = (a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : byDay(a, b));
+// Henter klokkeslett ut av teksten: «Hent Ronja 17.00», «Øvelse klokken 18.30», «Trening kl 18», «14.40 Lunsj»
+function parseTitle(raw) {
+  const clean = String(raw || "").replace(/\s+/g, " ").trim();
+  const fmt = (h, m) => String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+  const ok = (h, m) => h >= 0 && h <= 23 && m >= 0 && m <= 59;
+  let m, title = clean, time = null;
+  if ((m = clean.match(/^(.*?\S)\s+(?:kl\.?|klokka|klokken)?\s*(\d{1,2})[.:](\d{2})$/i)) && ok(+m[2], +m[3])) { title = m[1]; time = fmt(+m[2], +m[3]); }
+  else if ((m = clean.match(/^(.*?\S)\s+(?:kl\.?|klokka|klokken)\s*(\d{1,2})$/i)) && ok(+m[2], 0)) { title = m[1]; time = fmt(+m[2], 0); }
+  else if ((m = clean.match(/^(?:kl\.?\s*)?(\d{1,2})[.:](\d{2})\s+(.+)$/i)) && ok(+m[1], +m[2])) { title = m[3]; time = fmt(+m[1], +m[2]); }
+  title = title.replace(/[\s,–-]+$/, "").trim();
+  if (!title) return { title: clean, time: null };
+  return { title, time };
+}
+
+function getTask(id) { const t = S.live.get(id) || S.older.get(id); return t && !t.deleted ? t : null; }
+function rawTask(id) { return S.live.get(id) || S.older.get(id) || null; }
+function allTasks() {
+  const m = new Map(S.older);
+  S.live.forEach((t, id) => m.set(id, t));
+  const out = [];
+  m.forEach(t => { if (!t.deleted) out.push(t); });
+  return out;
+}
+function normTask(id, d) {
+  return {
+    id,
+    title: String(d.title || ""),
+    date: typeof d.date === "string" && d.date ? d.date : null,
+    done: !!d.done,
+    doneAt: typeof d.doneAt === "number" ? d.doneAt : null,
+    notes: typeof d.notes === "string" ? d.notes : "",
+    images: Array.isArray(d.images) ? d.images.filter(i => i && i.id) : [],
+    order: typeof d.order === "number" ? d.order : 0,
+    time: typeof d.time === "string" && /^\d{2}:\d{2}$/.test(d.time) ? d.time : null,
+    createdAt: typeof d.createdAt === "number" ? d.createdAt : 0,
+    updatedAt: typeof d.updatedAt === "number" ? d.updatedAt : 0,
+    deleted: !!d.deleted,
+    deletedAt: typeof d.deletedAt === "number" ? d.deletedAt : null,
+  };
+}
+
+// =====================================================================
+//  LAGRING – Firebase
+// =====================================================================
+async function createFirebaseStore() {
+  const base = `https://www.gstatic.com/firebasejs/${FB_VERSION}/`;
+  const [A, F, U] = await Promise.all([
+    import(base + "firebase-app.js"),
+    import(base + "firebase-firestore.js"),
+    import(base + "firebase-auth.js"),
+  ]);
+  const app = A.initializeApp(firebaseConfig);
+  let db;
+  try {
+    db = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) });
+  } catch (e) {
+    console.warn("Fikk ikke varig lokal buffer, bruker minnebuffer:", e);
+    db = F.getFirestore(app);
+  }
+  const auth = U.getAuth(app);
+  let uid = null, hooks = null, unsubs = [];
+  let openDocs = new Map(), doneDocs = new Map(), gotOpen = false, gotDone = false;
+  const api = { mode: "firebase", cutoff: Date.now() - DONE_WINDOW_DAYS * 864e5 };
+  const col = () => F.collection(db, "users", uid, "oppgaver");
+  const imgRef = (id) => F.doc(db, "users", uid, "bilder", id);
+  const strip = (t) => { const { id, ...rest } = t; return rest; };
+
+  function emit() {
+    if (!gotOpen || !gotDone) return;
+    const m = new Map(doneDocs);
+    openDocs.forEach((v, k) => m.set(k, v));
+    hooks.onTasks([...m.values()]);
+  }
+  function subscribe() {
+    unsubs.forEach(f => f()); unsubs = [];
+    openDocs = new Map(); doneDocs = new Map(); gotOpen = false; gotDone = false;
+    api.cutoff = Date.now() - DONE_WINDOW_DAYS * 864e5;
+    const onErr = (e) => hooks.onError(e);
+    unsubs.push(F.onSnapshot(F.query(col(), F.where("done", "==", false)), (s) => {
+      openDocs = new Map(s.docs.map(d => [d.id, normTask(d.id, d.data())])); gotOpen = true; emit();
+    }, onErr));
+    unsubs.push(F.onSnapshot(F.query(col(), F.where("doneAt", ">=", api.cutoff)), (s) => {
+      doneDocs = new Map(s.docs.map(d => [d.id, normTask(d.id, d.data())])); gotDone = true; emit();
+    }, onErr));
+  }
+  const userInfo = (u) => ({ anon: u.isAnonymous, name: u.email ? u.email.replace(USERNAME_DOMAIN, "") : "" });
+
+  api.start = (h) => {
+    hooks = h;
+    U.onAuthStateChanged(auth, (user) => {
+      if (user) {
+        if (user.uid !== uid) { uid = user.uid; hooks.onReset(); subscribe(); }
+        hooks.onUser(userInfo(user));
+      } else {
+        uid = null; unsubs.forEach(f => f()); unsubs = [];
+        U.signInAnonymously(auth).catch(e => hooks.onError(e));
+      }
+    });
+  };
+  api.put = (t) => F.setDoc(F.doc(col(), t.id), strip(t));
+  api.patch = (id, p) => F.updateDoc(F.doc(col(), id), p);
+  api.patchMany = (list) => { const b = F.writeBatch(db); list.forEach(c => b.update(F.doc(col(), c.id), c.patch)); return b.commit(); };
+  api.remove = (id) => F.deleteDoc(F.doc(col(), id));
+  api.putImage = (id, data, taskId) => F.setDoc(imgRef(id), { data, taskId, createdAt: Date.now() });
+  api.getImage = async (id) => { const s = await F.getDoc(imgRef(id)); return s.exists() ? s.data().data : null; };
+  api.deleteImage = (id) => F.deleteDoc(imgRef(id));
+  api.fetchRange = async (a, b) => {
+    const s = await F.getDocs(F.query(col(), F.where("date", ">=", a), F.where("date", "<=", b)));
+    return s.docs.map(d => normTask(d.id, d.data()));
+  };
+  api.fetchDoneBefore = async (ms, n) => {
+    const parts = [F.where("doneAt", "<", ms), F.orderBy("doneAt", "desc")];
+    if (n) parts.push(F.limit(n));
+    const s = await F.getDocs(F.query(col(), ...parts));
+    return s.docs.map(d => normTask(d.id, d.data()));
+  };
+  api.secure = async (username, pw) => {
+    const cred = U.EmailAuthProvider.credential(toEmail(username), pw);
+    const res = await U.linkWithCredential(auth.currentUser, cred);
+    hooks.onUser(userInfo(res.user));
+  };
+  api.login = async (username, pw) => { await U.signInWithEmailAndPassword(auth, toEmail(username), pw); };
+  api.logout = async () => { await U.signOut(auth); };
+  return api;
+}
+function toEmail(username) {
+  const u = username.trim().toLowerCase();
+  return u.includes("@") ? u : u + USERNAME_DOMAIN;
+}
+
+// =====================================================================
+//  LAGRING – lokal demomodus (nettleserens lagring)
+// =====================================================================
+function createLocalStore() {
+  const KT = "huskeliste:v1:oppgaver", KI = "huskeliste:v1:bilde:";
+  let mem = null;
+  try { localStorage.setItem("huskeliste:test", "1"); localStorage.removeItem("huskeliste:test"); }
+  catch (e) { mem = { tasks: {}, imgs: {} }; }
+  const read = () => { if (mem) return mem.tasks; try { return JSON.parse(localStorage.getItem(KT) || "{}") || {}; } catch (e) { return {}; } };
+  const write = (o) => { if (mem) { mem.tasks = o; return; } localStorage.setItem(KT, JSON.stringify(o)); };
+  const clone = (t) => normTask(t.id, JSON.parse(JSON.stringify(t)));
+  let hooks = null, emitQueued = false;
+  const api = { mode: "local", cutoff: Date.now() - DONE_WINDOW_DAYS * 864e5 };
+  function emit() {
+    emitQueued = false;
+    const all = Object.values(read());
+    hooks.onTasks(all.filter(t => !t.done || (t.doneAt && t.doneAt >= api.cutoff)).map(clone));
+  }
+  function queue() { if (!emitQueued) { emitQueued = true; setTimeout(emit, 0); } }
+  api.start = (h) => {
+    hooks = h;
+    if (SEED && !Object.keys(read()).length) seedExamples(write);
+    h.onUser({ anon: true, local: true });
+    queue();
+    window.addEventListener("storage", (e) => { if (e.key === KT) queue(); });
+  };
+  api.put = async (t) => { const o = read(); o[t.id] = JSON.parse(JSON.stringify(t)); write(o); queue(); };
+  api.patch = async (id, p) => { const o = read(); if (!o[id]) return; Object.assign(o[id], p); write(o); queue(); };
+  api.patchMany = async (list) => { const o = read(); list.forEach(c => { if (o[c.id]) Object.assign(o[c.id], c.patch); }); write(o); queue(); };
+  api.remove = async (id) => { const o = read(); delete o[id]; write(o); queue(); };
+  api.putImage = async (id, data) => { if (mem) { mem.imgs[id] = data; return; } localStorage.setItem(KI + id, data); };
+  api.getImage = async (id) => mem ? (mem.imgs[id] || null) : localStorage.getItem(KI + id);
+  api.deleteImage = async (id) => { if (mem) delete mem.imgs[id]; else localStorage.removeItem(KI + id); };
+  api.fetchRange = async (a, b) => Object.values(read()).filter(t => t.date && t.date >= a && t.date <= b).map(clone);
+  api.fetchDoneBefore = async (ms, n) => {
+    let l = Object.values(read()).filter(t => t.done && t.doneAt && t.doneAt < ms).sort((x, y) => y.doneAt - x.doneAt);
+    if (n) l = l.slice(0, n);
+    return l.map(clone);
+  };
+  return api;
+}
+function seedExamples(write) {
+  const today = todayKey(), now = Date.now();
+  const mk = (title, date, extra = {}) => ({ id: newId(), title, date, time: null, done: false, doneAt: null, notes: "", images: [], order: 1, createdAt: now, updatedAt: now, deleted: false, deletedAt: null, ...extra });
+  const list = [
+    mk("Ringe regnskapsfører om MVA", today, { order: 1, notes: "Spør om fristen for neste termin." }),
+    mk("Bestille nye etiketter", today, { order: 2 }),
+    mk("Hente pakke på posten", today, { order: 3, done: true, doneAt: now - 3600e3 }),
+    mk("Svare på e-post fra leverandør", addDays(today, -1), { order: 1 }),
+    mk("Planlegge nyhetsbrev", addDays(today, 1), { order: 1, notes: "Tema: vinterpleie.\nHusk bilder fra fotograferingen." }),
+    mk("Trening", addDays(today, 2), { order: 1, time: "18:00" }),
+    mk("Hente på skolen", today, { order: 4, time: "14:40" }),
+    mk("Handle til helgen", addDays(today, 4), { order: 1, notes: "Kaffe, brød, egg, frukt" }),
+    mk("Bytte til vinterdekk", null, { order: 1, notes: "Generell: vises hver dag til den er gjort." }),
+    mk("Rydde i boden", null, { order: 2 }),
+    mk("Levere pant", addDays(today, -40), { order: 1, done: true, doneAt: now - 40 * 864e5 }),
+  ];
+  const o = {}; list.forEach(t => { o[t.id] = t; }); write(o);
+}
+
+// =====================================================================
+//  ENDRINGER
+// =====================================================================
+let store = null;
+function write(p) { if (p && typeof p.catch === "function") p.catch(onWriteError); }
+function onWriteError(e) {
+  console.error("Lagring feilet:", e);
+  if (e && e.code === "permission-denied") { S.error = errorText(e); scheduleRender(); }
+  else if (e && /quota/i.test(String(e.name || e.message))) toast("Lagringen i nettleseren er full.", { kind: "error" });
+  else toast("Kunne ikke lagre endringen. Prøv igjen.", { kind: "error" });
+}
+function errorText(e) {
+  const code = (e && e.code) || "";
+  if (code === "permission-denied") return "Appen får ikke lese eller skrive i databasen. Sjekk at Firestore-reglene er publisert i Firebase.";
+  if (code === "auth/operation-not-allowed" || code === "auth/admin-restricted-operation") return "Innlogging er ikke slått på i Firebase. Slå på «Anonymous» og «Email/Password» under Authentication → Sign-in method.";
+  if (code === "auth/invalid-api-key" || code === "auth/api-key-not-valid.-please-pass-a-valid-api-key.") return "Firebase-nøkkelen i appen er ugyldig. Sjekk firebaseConfig øverst i koden.";
+  if (code === "auth/network-request-failed" || code === "unavailable") return "Får ikke kontakt med serveren. Endringer lagres når nettet er tilbake.";
+  if (code === "failed-precondition") return "Databasen mangler et oppsett (indeks). Åpne konsollen i nettleseren for en lenke som fikser det.";
+  return "Noe gikk galt med lagringen" + (code ? ` (${code})` : "") + ".";
+}
+
+function applyLocal(id, patch) {
+  for (const m of [S.live, S.older]) { const t = m.get(id); if (t) m.set(id, { ...t, ...patch }); }
+}
+function update(id, patch, opts = {}) {
+  const t = opts.allowDeleted ? rawTask(id) : getTask(id);
+  if (!t) return;
+  const before = {};
+  for (const k in patch) before[k] = t[k] === undefined ? null : t[k];
+  const full = { ...patch, updatedAt: Date.now() };
+  applyLocal(id, full);
+  scheduleRender();
+  write(store.patch(id, full));
+  if (opts.toast) toast(opts.toast, { undo: () => update(id, before, { allowDeleted: true }), duration: opts.duration });
+}
+function updateMany(changes, msg) {
+  const now = Date.now(), befores = [], out = [];
+  for (const c of changes) {
+    const t = rawTask(c.id); if (!t) continue;
+    const b = {}; for (const k in c.patch) b[k] = t[k] === undefined ? null : t[k];
+    befores.push({ id: c.id, patch: b });
+    const p = { ...c.patch, updatedAt: now };
+    applyLocal(c.id, p); out.push({ id: c.id, patch: p });
+  }
+  if (!out.length) return;
+  scheduleRender();
+  write(store.patchMany(out));
+  if (msg) toast(msg, { undo: () => updateMany(befores) });
+}
+function nextOrder(date, exceptId) {
+  let m = 0;
+  for (const t of allTasks()) if (t.id !== exceptId && (t.date || null) === (date || null) && t.order > m) m = t.order;
+  return Math.floor(m) + 1;
+}
+function createTask(raw, date) {
+  const { title, time } = parseTitle(raw);
+  if (!title) return null;
+  const now = Date.now();
+  const t = { id: newId(), title, time, date: date || null, done: false, doneAt: null, notes: "", images: [], order: nextOrder(date), createdAt: now, updatedAt: now, deleted: false, deletedAt: null };
+  S.live.set(t.id, t);
+  scheduleRender();
+  write(store.put(t));
+  return t;
+}
+function toggleDone(id) {
+  const t = getTask(id); if (!t) return;
+  if (!t.done) {
+    S.justDone.add(id);
+    setTimeout(() => { S.justDone.delete(id); scheduleRender(); }, 950);
+    update(id, { done: true, doneAt: Date.now() }, { toast: "Utført", duration: 3500 });
+  } else {
+    S.justDone.delete(id);
+    const msg = S.view === "utfort" && !(S.sheet && S.sheet.kind === "task") ? `Lagt tilbake ${t.date ? "på " + movedLabel(t.date) : "i listen"}` : null;
+    update(id, { done: false, doneAt: null }, { toast: msg });
+  }
+}
+function moveTask(id, date, order) {
+  const t = getTask(id); if (!t) return;
+  date = date || null;
+  const changed = (t.date || null) !== date;
+  update(id, { date, order: order == null ? nextOrder(date, id) : order }, { toast: changed ? (date ? `Flyttet til ${movedLabel(date)}` : "Gjort om til generell") : null });
+}
+function setTaskDate(id, rel) {
+  const t = getTask(id); if (!t) return;
+  const today = todayKey();
+  let d;
+  if (rel === "today") d = today;
+  else if (rel === "tomorrow") d = addDays(today, 1);
+  else if (rel === "+1") d = addDays(t.date || today, 1);
+  else if (rel === "+7") d = addDays(t.date || today, 7);
+  else if (rel === "none") d = null;
+  else d = rel;
+  if ((t.date || null) === (d || null)) return;
+  moveTask(id, d, null);
+}
+function pushDay(k) {
+  const today = todayKey();
+  const to = k < today ? today : addDays(k, 1);
+  const list = allTasks().filter(t => !t.done && t.date === k).sort(byOrder);
+  if (!list.length) return;
+  let o = nextOrder(to);
+  updateMany(list.map(t => ({ id: t.id, patch: { date: to, order: o++ } })), `${plural(list.length, "oppgave", "oppgaver")} flyttet til ${movedLabel(to)}`);
+}
+function overdueList() { const today = todayKey(); return allTasks().filter(t => !t.done && t.date && t.date < today).sort(byDateOrder); }
+function overdueToToday() {
+  const list = overdueList(); if (!list.length) return;
+  const today = todayKey(); let o = nextOrder(today);
+  updateMany(list.map(t => ({ id: t.id, patch: { date: today, order: o++ } })), `${plural(list.length, "oppgave", "oppgaver")} flyttet til i dag`);
+}
+const deleteTimers = new Map();
+function deleteTask(id) {
+  const t = getTask(id); if (!t) return;
+  closeSheetUI();
+  update(id, { deleted: true, deletedAt: Date.now() });
+  deleteTimers.set(id, setTimeout(() => finalizeDelete(id), 7000));
+  toast("Oppgaven er slettet", {
+    duration: 6500,
+    undo: () => { clearTimeout(deleteTimers.get(id)); deleteTimers.delete(id); update(id, { deleted: false, deletedAt: null }, { allowDeleted: true }); },
+  });
+}
+function finalizeDelete(id) {
+  deleteTimers.delete(id);
+  const t = rawTask(id);
+  if (!t || !t.deleted) return;
+  S.live.delete(id); S.older.delete(id);
+  write(store.remove(id));
+  (t.images || []).forEach(im => write(store.deleteImage(im.id)));
+}
+function cleanupDeleted() {
+  const limit = Date.now() - 20000;
+  for (const t of [...S.live.values()]) if (t.deleted && !deleteTimers.has(t.id) && (t.deletedAt || 0) < limit) finalizeDelete(t.id);
+}
+
+// ---------- Bilder ----------
+const imgCache = new Map();
+async function loadImageSource(file) {
+  if ("createImageBitmap" in window) {
+    try { return await createImageBitmap(file, { imageOrientation: "from-image" }); } catch (e) {}
+  }
+  return await new Promise((res, rej) => {
+    const url = URL.createObjectURL(file); const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = (e) => { URL.revokeObjectURL(url); rej(e); };
+    img.src = url;
+  });
+}
+function drawScaled(src, maxSide, quality) {
+  const w0 = src.naturalWidth || src.width, h0 = src.naturalHeight || src.height;
+  const s = Math.min(1, maxSide / Math.max(w0, h0));
+  const w = Math.max(1, Math.round(w0 * s)), h = Math.max(1, Math.round(h0 * s));
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(src, 0, 0, w, h);
+  return { data: c.toDataURL("image/jpeg", quality), w, h };
+}
+async function compressImage(file) {
+  const src = await loadImageSource(file);
+  let side = 1600, q = 0.82, full = drawScaled(src, side, q);
+  while (full.data.length > 850000 && side > 500) { side = Math.round(side * 0.8); q = Math.max(0.6, q - 0.06); full = drawScaled(src, side, q); }
+  const thumb = drawScaled(src, 300, 0.72);
+  if (src.close) src.close();
+  return { full, thumb };
+}
+async function addImages(taskId, files) {
+  const list = [...files].filter(f => f && f.type && f.type.startsWith("image/"));
+  if (!list.length) { toast("Fant ingen bilder i det du la til."); return; }
+  for (const f of list) {
+    const t0 = getTask(taskId); if (!t0) return;
+    if (t0.images.length >= MAX_IMAGES) { toast(`En oppgave kan ha maks ${MAX_IMAGES} bilder.`); return; }
+    S.uploading.set(taskId, (S.uploading.get(taskId) || 0) + 1); refreshSheet();
+    try {
+      const { full, thumb } = await compressImage(f);
+      const imgId = newId();
+      imgCache.set(imgId, full.data);
+      write(store.putImage(imgId, full.data, taskId));
+      const t = getTask(taskId);
+      if (t) update(taskId, { images: [...t.images, { id: imgId, thumb: thumb.data, w: full.w, h: full.h }] });
+    } catch (e) {
+      console.error(e); toast("Kunne ikke lese bildet.", { kind: "error" });
+    } finally {
+      S.uploading.set(taskId, Math.max(0, (S.uploading.get(taskId) || 1) - 1)); refreshSheet();
+    }
+  }
+}
+function removeImage(taskId, imgId) {
+  const t = getTask(taskId); if (!t) return;
+  update(taskId, { images: t.images.filter(i => i.id !== imgId) });
+  write(store.deleteImage(imgId));
+  imgCache.delete(imgId);
+}
+
+// ---------- Hente eldre data ved behov ----------
+function cutoffKey() { return addDays(todayKey(), -DONE_WINDOW_DAYS); }
+function ensureRange(a, b) {
+  if (!store || !S.loaded || a >= cutoffKey()) return;
+  const key = a + "|" + b;
+  if (S.fetched.has(key)) return;
+  S.fetched.add(key);
+  store.fetchRange(a, b).then(list => { list.forEach(t => S.older.set(t.id, t)); scheduleRender(); })
+    .catch(e => { S.fetched.delete(key); console.warn(e); });
+}
+async function loadOlderDone(all) {
+  if (S.loadingDone || !store) return;
+  S.loadingDone = true; renderContent();
+  try {
+    const cursor = S.doneCursor == null ? store.cutoff : S.doneCursor;
+    const n = all ? null : 100;
+    const list = await store.fetchDoneBefore(cursor, n);
+    list.forEach(t => S.older.set(t.id, t));
+    if (list.length) S.doneCursor = Math.min(...list.map(t => t.doneAt));
+    if (all || list.length < 100) S.allDoneLoaded = true;
+  } catch (e) {
+    console.error(e); toast("Kunne ikke hente eldre oppgaver.", { kind: "error" });
+  }
+  S.loadingDone = false; renderContent();
+}
+
+// =====================================================================
+//  VISNING
+// =====================================================================
+let rafId = 0;
+function scheduleRender() {
+  if (rafId) return;
+  rafId = requestAnimationFrame(() => { rafId = 0; render(); });
+}
+function render() {
+  if (S.renderBlocked) { S.renderPending = true; return; }
+  renderHeader();
+  renderToolbar();
+  renderQuickAdd();
+  renderBanners();
+  renderContent();
+  refreshSheet();
+}
+function renderHeader() {
+  document.querySelectorAll(".views button").forEach(b => b.classList.toggle("is-active", b.dataset.view === S.view));
+  $("#btn-done").classList.toggle("is-active", S.view === "utfort");
+  const today = todayKey();
+  const n = allTasks().filter(t => t.done && t.doneAt && keyOf(new Date(t.doneAt)) === today).length;
+  const badge = $("#done-badge");
+  badge.hidden = !n; badge.textContent = n;
+  $("#btn-done").title = n ? `${plural(n, "oppgave", "oppgaver")} utført i dag` : "Utførte oppgaver";
+}
+function toolbarHtml() {
+  if (S.view === "uke") {
+    const mon = mondayOf(S.anchor), sun = addDays(mon, 6), cur = mon === mondayOf(todayKey());
+    return `<div class="toolbar"><div class="nav-group"><button type="button" class="icon-btn" data-act="prev" aria-label="Forrige uke">${svg("left")}</button><button type="button" class="icon-btn" data-act="next" aria-label="Neste uke">${svg("right")}</button></div>
+      <div class="period"><span class="period-main">Uke ${isoWeek(mon)}</span><span class="period-sub">${rangeLabel(mon, sun)}</span></div><span class="spacer"></span>${cur ? "" : `<button type="button" class="btn" data-act="go-today">I dag</button>`}</div>`;
+  }
+  if (S.view === "maaned") {
+    const a = dateOf(S.anchor), t = new Date(), cur = a.getFullYear() === t.getFullYear() && a.getMonth() === t.getMonth();
+    return `<div class="toolbar"><div class="nav-group"><button type="button" class="icon-btn" data-act="prev" aria-label="Forrige måned">${svg("left")}</button><button type="button" class="icon-btn" data-act="next" aria-label="Neste måned">${svg("right")}</button></div>
+      <div class="period"><span class="period-main">${cap(MND[a.getMonth()])}</span><span class="period-sub">${a.getFullYear()}</span></div><span class="spacer"></span>${cur ? "" : `<button type="button" class="btn" data-act="go-today">I dag</button>`}</div>`;
+  }
+  if (S.view === "liste") {
+    return `<div class="toolbar narrow"><div class="search">${svg("search")}<input id="search" type="search" placeholder="Søk i oppgaver" autocomplete="off" value="${esc(S.search)}" aria-label="Søk i oppgaver" /></div></div>`;
+  }
+  return `<div class="toolbar narrow"><button type="button" class="btn" data-act="back">${svg("back")}Tilbake</button><div class="search">${svg("search")}<input id="done-search" type="search" placeholder="Søk i utførte" autocomplete="off" value="${esc(S.doneSearch)}" aria-label="Søk i utførte" /></div></div>`;
+}
+function renderToolbar() {
+  const sig = S.view === "uke" ? "uke|" + mondayOf(S.anchor) + "|" + mondayOf(todayKey())
+    : S.view === "maaned" ? "maaned|" + S.anchor.slice(0, 7) + "|" + todayKey().slice(0, 7)
+    : S.view;
+  if (sig === S.toolbarSig) return;
+  S.toolbarSig = sig;
+  $("#toolbar").innerHTML = toolbarHtml();
+}
+function renderQuickAdd() {
+  const qa = $("#quickadd");
+  qa.hidden = S.view === "utfort";
+  qa.classList.toggle("narrow", S.view === "liste");
+  const lbl = S.qaDate ? relLabel(S.qaDate) : "Generell";
+  const html = `${svg("cal")}<span>${esc(lbl)}</span>`;
+  const btn = $("#qa-date");
+  if (btn.innerHTML !== html) btn.innerHTML = html;
+}
+function renderBanners() {
+  const out = [];
+  if (S.error) out.push(`<div class="banner error">${svg("alert")}<span class="b-text">${esc(S.error)}</span><span class="b-actions"><button type="button" class="btn" data-act="dismiss-error">Lukk</button></span></div>`);
+  if (S.offline && !LOCAL_MODE) out.push(`<div class="banner info">${svg("cloud")}<span class="b-text">Du er frakoblet. Endringer lagres på enheten og sendes når nettet er tilbake.</span></div>`);
+  if (LOCAL_MODE && !S.localNoticeHidden) out.push(`<div class="banner info">${svg("info")}<span class="b-text">Demomodus: oppgavene lagres bare i denne nettleseren til Firebase er koblet til.</span><span class="b-actions"><button type="button" class="btn" data-act="hide-local">Skjul</button></span></div>`);
+  if (S.loaded && S.view !== "utfort") {
+    const n = overdueList().length;
+    if (n) out.push(`<div class="banner warn">${svg("alert")}<span class="b-text">${n === 1 ? "1 oppgave" : n + " oppgaver"} fra tidligere dager er ikke gjort.</span><span class="b-actions"><button type="button" class="btn warm" data-act="overdue-today">Flytt til i dag</button>${S.view !== "liste" ? `<button type="button" class="btn" data-act="show-overdue">Vis</button>` : ""}</span></div>`);
+  }
+  const html = out.join("");
+  const el = $("#banners");
+  el.classList.toggle("narrow", S.view === "liste" || S.view === "utfort");
+  if (el.innerHTML !== html) el.innerHTML = html;
+}
+function renderContent() {
+  if (S.renderBlocked) { S.renderPending = true; return; }
+  const main = $("#content");
+  let html;
+  if (!S.loaded) html = `<div class="loading">Henter oppgaver …</div>`;
+  else if (S.view === "uke") html = weekHtml();
+  else if (S.view === "maaned") html = monthHtml();
+  else if (S.view === "liste") html = listHtml();
+  else html = doneHtml();
+  // Ta vare på fokus og markør i et felt som er åpent mens vi tegner på nytt
+  const ae = document.activeElement;
+  let keep = null;
+  if (ae && ae.id && main.contains(ae)) keep = { id: ae.id, value: ae.value, s: ae.selectionStart, e: ae.selectionEnd };
+  S.renderingNow = true;
+  main.innerHTML = html;
+  if (keep) {
+    const el = document.getElementById(keep.id);
+    if (el) {
+      if (keep.value != null && "value" in el) el.value = keep.value;
+      el.focus({ preventScroll: true });
+      try { el.setSelectionRange(keep.s, keep.e); } catch (e) {}
+    }
+  }
+  S.renderingNow = false;
+}
+
+// ---------- Byggeklosser ----------
+function taskHtml(t, o = {}) {
+  const today = todayKey();
+  const overdue = !t.done && t.date && t.date < today;
+  const meta = [];
+  if (o.showDate && t.date) meta.push(`<span class="m-date">${svg("cal")}${esc(relLabel(t.date))}</span>`);
+  if (o.showDate && !t.date && o.showNoDate) meta.push(`<span>${svg("repeat")}Generell</span>`);
+  if (t.notes && t.notes.trim()) meta.push(`<span title="Har notater">${svg("notes")}</span>`);
+  if (t.images && t.images.length) meta.push(`<span title="${plural(t.images.length, "bilde", "bilder")}">${svg("image")}${t.images.length}</span>`);
+  const cls = ["task"];
+  if (t.done) cls.push("is-done");
+  if (overdue) cls.push("is-overdue");
+  if (!t.date) cls.push("is-general");
+  if (S.justDone.has(t.id)) cls.push("just-done");
+  const timed = t.time && t.date ? ` data-timed="1"` : "";
+  return `<div class="${cls.join(" ")}" data-task="${t.id}"${timed} tabindex="0">` +
+    `<button type="button" class="check" data-act="toggle" data-id="${t.id}" aria-label="${t.done ? "Marker som ikke utført" : "Marker som utført"}">${svg("check", "", 3)}</button>` +
+    `<div class="t-body"><div class="t-title">${t.time ? `<span class="t-time">${t.time}</span>` : ""}${esc(t.title)}</div>${meta.length ? `<div class="t-meta">${meta.join("")}</div>` : ""}</div>` +
+    `<button type="button" class="t-del" data-act="del" data-id="${t.id}" aria-label="Slett" title="Slett">${svg("trash")}</button></div>`;
+}
+function inlineAddHtml(key) {
+  if (S.inlineAdd === key) return `<div class="inline-add"><input id="ia-${key}" class="ia-input" data-date="${key}" placeholder="Skriv og trykk Enter" enterkeyhint="done" autocomplete="off" maxlength="300" /></div>`;
+  return `<button type="button" class="add-btn" data-act="inline-add" data-date="${key}">${svg("plus")}Legg til</button>`;
+}
+function doneBlockHtml(key, done) {
+  if (!done.length) return "";
+  const open = S.openDone.has(key);
+  return `<button type="button" class="done-toggle${open ? " is-open" : ""}" data-act="toggle-done-list" data-key="${key}">${svg("done")}${done.length} utført${svg("down", "chev")}</button>` +
+    (open ? `<div class="day-done">${done.map(t => taskHtml(t)).join("")}</div>` : "");
+}
+function generalsFor(k, all) {
+  // Generelle oppgaver vises på i dag og kommende dager til de er utført
+  const today = todayKey();
+  const list = all || allTasks();
+  const open = k >= today ? list.filter(t => !t.date && (!t.done || S.justDone.has(t.id))).sort(byOrder) : [];
+  const done = list.filter(t => !t.date && t.done && !S.justDone.has(t.id) && t.doneAt && keyOf(new Date(t.doneAt)) === k);
+  return { open, done };
+}
+function dayHtml(k, tasks, o = {}) {
+  const today = todayKey(), d = dateOf(k);
+  const gen = o.gen || { open: [], done: [] };
+  const open = tasks.filter(t => !t.done || S.justDone.has(t.id)).sort(byDay);
+  const done = tasks.filter(t => t.done && !S.justDone.has(t.id)).concat(gen.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+  const undone = open.filter(t => !t.done).length;
+  const cls = ["day"];
+  if (k === today) cls.push("is-today");
+  if (k < today) cls.push("is-past");
+  if (!open.length && S.inlineAdd !== k) cls.push("is-empty");
+  if (o.panel) cls.push("panel");
+  const pushTitle = k < today ? "Flytt det som ikke er gjort til i dag" : "Flytt det som ikke er gjort til neste dag";
+  const head = o.panel
+    ? `<span class="dh-panel">${esc(relLong(k))}</span>`
+    : `<span class="dh-desk"><span class="dh-name">${WD[(d.getDay() + 6) % 7]}</span><span class="dh-num">${d.getDate()}</span></span>` +
+      `<span class="dh-mob"><span class="dh-long">${cap(DAG[d.getDay()])}</span><span class="dh-date">${d.getDate()}. ${MNDK[d.getMonth()]}</span>${k === today ? `<span class="dh-today">I dag</span>` : ""}</span>`;
+  const tools = (undone ? `<button type="button" class="icon-btn sm ghost" data-act="push-day" data-date="${k}" title="${pushTitle}" aria-label="${pushTitle}">${svg("push")}</button>` : "") +
+    `<button type="button" class="icon-btn sm ghost head-add" data-act="inline-add" data-date="${k}" title="Legg til oppgave" aria-label="Legg til oppgave">${svg("plus")}</button>`;
+  const empty = o.panel && !open.length && !gen.open.length && S.inlineAdd !== k ? `<div class="empty-day">Ingen oppgaver denne dagen.</div>` : "";
+  const genHtml = gen.open.length ? `<div class="day-general" data-drop-date="" data-list=""><div class="gen-label">${svg("repeat")}Generelt</div>${gen.open.map(t => taskHtml(t)).join("")}</div>` : "";
+  return `<section class="${cls.join(" ")}" data-drop-date="${k}">` +
+    `<header class="day-head">${head}<span class="dh-tools">${tools}</span></header>` +
+    `<div class="day-list" data-list="${k}">${open.map(t => taskHtml(t)).join("")}</div>${genHtml}${empty}` +
+    inlineAddHtml(k) + doneBlockHtml(k, done) + `</section>`;
+}
+function weekHtml() {
+  const mon = mondayOf(S.anchor);
+  const days = Array.from({ length: 7 }, (_, i) => addDays(mon, i));
+  ensureRange(mon, days[6]);
+  const by = new Map(days.map(k => [k, []]));
+  const all = allTasks();
+  for (const t of all) if (t.date && by.has(t.date)) by.get(t.date).push(t);
+  return `<div class="week">${days.map(k => dayHtml(k, by.get(k), { gen: generalsFor(k, all) })).join("")}</div>`;
+}
+function monthHtml() {
+  const a = dateOf(S.anchor), y = a.getFullYear(), m = a.getMonth();
+  const first = keyOf(new Date(y, m, 1)), last = keyOf(new Date(y, m + 1, 0));
+  const start = mondayOf(first), end = addDays(mondayOf(last), 6);
+  ensureRange(start, end);
+  const today = todayKey();
+  const by = new Map();
+  for (const t of allTasks()) {
+    if (!t.date || t.date < start || t.date > end) continue;
+    if (!by.has(t.date)) by.set(t.date, []);
+    by.get(t.date).push(t);
+  }
+  let cells = "";
+  for (let k = start; k <= end; k = addDays(k, 1)) {
+    const list = by.get(k) || [];
+    const open = list.filter(t => !t.done).sort(byDay);
+    const doneN = list.length - open.length;
+    const d = dateOf(k);
+    const cls = ["m-cell"];
+    if (d.getMonth() !== m) cls.push("is-out");
+    if (k === today) cls.push("is-today");
+    if (k === S.selected) cls.push("is-selected");
+    const lim = 3;
+    const chips = open.slice(0, lim).map(t => `<div class="m-chip${k < today ? " is-overdue" : ""}" data-task="${t.id}" title="${esc((t.time ? t.time + " " : "") + t.title)}">${t.time ? `<b>${t.time}</b> ` : ""}${esc(t.title)}</div>`).join("");
+    const more = open.length > lim ? `<div class="m-more">+${open.length - lim} til</div>` : "";
+    const dots = open.slice(0, 4).map(() => `<span class="m-dot${k < today ? " is-overdue" : ""}"></span>`).join("");
+    const label = `${longLabel(k)}: ${open.length ? plural(open.length, "oppgave", "oppgaver") : "ingen oppgaver"}`;
+    cells += `<div class="${cls.join(" ")}" data-act="select-day" data-date="${k}" data-drop-date="${k}" aria-label="${esc(label)}">` +
+      `<div class="m-num">${d.getDate()}</div>${chips}${more}<div class="m-dots">${dots}</div>${doneN ? `<div class="m-done">${svg("check", "", 3)}${doneN}</div>` : ""}</div>`;
+  }
+  const all = allTasks();
+  const sel = all.filter(t => t.date === S.selected);
+  return `<div class="m-layout"><div class="month"><div class="m-head">${WD.map(w => `<span>${w}</span>`).join("")}</div><div class="m-grid">${cells}</div></div>` +
+    `<div class="m-side">${dayHtml(S.selected, sel, { panel: true, gen: generalsFor(S.selected, all) })}</div></div>`;
+}
+function matcher(q) {
+  q = q.trim().toLowerCase();
+  if (!q) return () => true;
+  return (t) => t.title.toLowerCase().includes(q) || (t.notes || "").toLowerCase().includes(q);
+}
+function listHtml() {
+  const today = todayKey(), tom = addDays(today, 1);
+  const sunThis = addDays(mondayOf(today), 6), monNext = addDays(sunThis, 1), sunNext = addDays(monNext, 6);
+  const q = S.search.trim();
+  const match = matcher(q);
+  const all = allTasks();
+  const open = all.filter(t => (!t.done || S.justDone.has(t.id)) && match(t));
+  const groups = [
+    { key: "overdue", title: "Forfalt", test: t => t.date && t.date < today, showDate: true, sort: byDateOrder },
+    { key: "today", title: "I dag", date: today, test: t => t.date === today, always: !q, sort: byDay },
+    { key: "tomorrow", title: "I morgen", date: tom, test: t => t.date === tom, sort: byDay },
+    { key: "week", title: "Resten av uka", test: t => t.date && t.date > tom && t.date <= sunThis, showDate: true, sort: byDateOrder },
+    { key: "next", title: "Neste uke", test: t => t.date && t.date > tom && t.date >= monNext && t.date <= sunNext, showDate: true, sort: byDateOrder },
+    { key: "later", title: "Senere", test: t => t.date && t.date > tom && t.date > sunNext, showDate: true, sort: byDateOrder },
+    { key: "general", title: "Generelle", date: "", test: t => !t.date },
+  ];
+  let html = "";
+  for (const g of groups) {
+    const items = open.filter(g.test).sort(g.sort || byOrder);
+    if (!items.length && !g.always) continue;
+    const drop = g.date !== undefined ? ` data-drop-date="${g.date}"` : "";
+    const list = g.date !== undefined ? ` data-list="${g.date}"` : "";
+    html += `<section class="group g-${g.key}"${drop}><h3 class="group-h">${g.title}${items.length ? `<span class="count">${items.length}</span>` : ""}</h3>` +
+      `<div class="g-list"${list}>${items.map(t => taskHtml(t, { showDate: g.showDate })).join("")}</div>` +
+      (!items.length ? `<div class="empty-mini">Ingenting planlagt i dag.</div>` : "") + `</section>`;
+  }
+  const doneHits = q ? all.filter(t => t.done && match(t)).length : 0;
+  if (!open.length && !q) {
+    html = `<div class="empty"><div class="e-icon">${svg("sun")}</div><h3>Alt er gjort!</h3><p>Legg til en ny oppgave i feltet over.</p></div>`;
+  } else if (!open.length && q) {
+    html = `<div class="empty"><h3>Ingen treff</h3><p>Fant ingen åpne oppgaver som passer «${esc(q)}».</p></div>`;
+  }
+  let foot = "";
+  if (q && doneHits) foot = `<div class="list-foot">Fant også ${plural(doneHits, "treff", "treff")} blant utførte. <button type="button" class="link-btn" data-act="search-done">Vis</button></div>`;
+  else if (!q) {
+    const recent = all.filter(t => t.done).length;
+    if (recent) foot = `<div class="list-foot">${plural(recent, "utført oppgave", "utførte oppgaver")} de siste ${DONE_WINDOW_DAYS} dagene. <button type="button" class="link-btn" data-act="view" data-view="utfort">Vis utførte</button></div>`;
+  }
+  return `<div class="narrow">${html}${foot}</div>`;
+}
+function doneHtml() {
+  const q = S.doneSearch.trim();
+  const match = matcher(q);
+  const list = allTasks().filter(t => t.done && t.doneAt && match(t)).sort((a, b) => b.doneAt - a.doneAt);
+  let html = "";
+  let curKey = null;
+  for (const t of list) {
+    const k = keyOf(new Date(t.doneAt));
+    if (k !== curKey) {
+      if (curKey) html += `</div></section>`;
+      curKey = k;
+      html += `<section class="done-group"><h3>${esc(relLong(k))}</h3><div class="g-list">`;
+    }
+    html += taskHtml(t, { showDate: true, showNoDate: true });
+  }
+  if (curKey) html += `</div></section>`;
+  if (!list.length) {
+    html = q ? `<div class="empty"><h3>Ingen treff</h3><p>Fant ingen utførte oppgaver som passer «${esc(q)}»${S.allDoneLoaded ? "" : ` de siste ${DONE_WINDOW_DAYS} dagene`}.</p></div>`
+      : `<div class="empty"><div class="e-icon">${svg("done")}</div><h3>Ingen utførte oppgaver ennå</h3><p>Når du krysser av en oppgave, havner den her.</p></div>`;
+  }
+  if (!S.allDoneLoaded) {
+    html += `<div class="more-done"><button type="button" class="btn" data-act="load-done"${S.loadingDone ? " disabled" : ""}>${S.loadingDone ? "Henter …" : "Vis eldre utførte"}</button>` +
+      (q ? `<button type="button" class="btn primary" data-act="load-all-done"${S.loadingDone ? " disabled" : ""}>Søk i alle utførte</button>` : "") + `</div>`;
+    if (S.doneCursor == null) html += `<div class="done-hint">Viser utførte oppgaver fra de siste ${DONE_WINDOW_DAYS} dagene.</div>`;
+  }
+  return `<div class="narrow">${html}</div>`;
+}
+
+// =====================================================================
+//  DETALJPANEL OG MENY
+// =====================================================================
+const overlays = [];
+function pushOverlay(close) {
+  let pushed = false;
+  try { history.pushState({ huskeliste: overlays.length + 1 }, ""); pushed = true; } catch (e) {}
+  overlays.push({ close, pushed });
+}
+function popOverlayUI() {
+  const o = overlays.pop(); if (!o) return;
+  o.close();
+  if (o.pushed) { ignorePop++; try { history.back(); } catch (e) { ignorePop--; } }
+}
+let ignorePop = 0;
+window.addEventListener("popstate", () => {
+  if (ignorePop > 0) { ignorePop--; return; }
+  const o = overlays.pop(); if (o) o.close();
+});
+
+function openTask(id) {
+  if (!getTask(id)) return;
+  closePopover();
+  if (S.sheet) { flushSheetEdits(); S.sheet = { kind: "task", id }; mountSheet(false); return; }
+  S.sheet = { kind: "task", id };
+  mountSheet(true);
+}
+function openMenu() {
+  closePopover();
+  S.accountMsg = ""; S.accountErr = "";
+  if (S.sheet) { flushSheetEdits(); S.sheet = { kind: "menu" }; mountSheet(false); return; }
+  S.sheet = { kind: "menu" };
+  mountSheet(true);
+}
+function mountSheet(fresh) {
+  const root = $("#sheet-root");
+  const kind = S.sheet.kind;
+  root.innerHTML = `<div class="sheet-backdrop" data-act="close-sheet"></div><aside class="sheet sheet-${kind}" role="dialog" aria-modal="true" aria-label="${kind === "task" ? "Oppgave" : "Konto og hjelp"}">${kind === "task" ? taskSheetHtml(getTask(S.sheet.id)) : menuSheetHtml()}</aside>`;
+  if (fresh) {
+    pushOverlay(closeSheetNow);
+    document.body.classList.add("sheet-open");
+    void root.offsetWidth;
+    root.classList.add("open");
+  }
+  if (kind === "task") initTaskSheet();
+}
+function closeSheetUI() {
+  if (!S.sheet) return;
+  if (S.lb) popOverlayUI();
+  popOverlayUI();
+}
+function closeSheetNow() {
+  if (!S.sheet) return;
+  flushSheetEdits();
+  S.sheet = null;
+  const root = $("#sheet-root");
+  root.classList.remove("open");
+  document.body.classList.remove("sheet-open");
+  setTimeout(() => { if (!S.sheet) root.innerHTML = ""; }, 300);
+}
+
+function taskSheetHtml(t) {
+  return `<div class="sheet-grip" aria-hidden="true"></div>
+  <div class="sheet-head" id="d-head">
+    <button type="button" class="check big" data-act="toggle" data-id="${t.id}" aria-label="Marker som utført">${svg("check", "", 3)}</button>
+    <textarea id="d-title" class="d-title" rows="1" maxlength="300" aria-label="Tittel">${esc(t.title)}</textarea>
+    <button type="button" class="icon-btn ghost" data-act="close-sheet" aria-label="Lukk">${svg("close")}</button>
+  </div>
+  <div class="sheet-body">
+    <div class="d-section">
+      <div class="d-label">Dag</div>
+      <div class="d-date" id="d-date-label"></div>
+      <div class="chips" id="d-chips"></div>
+      <div class="d-time-row"><label class="d-time-label" for="d-time">${svg("clock")}Klokkeslett</label><input type="time" id="d-time" class="field time-field" aria-label="Klokkeslett" /><button type="button" class="btn" data-act="clear-time" id="d-time-clear">Fjern</button></div>
+    </div>
+    <div class="d-section">
+      <div class="d-label">Notater</div>
+      <textarea id="d-notes" class="d-notes" placeholder="Skriv mer om oppgaven …">${esc(t.notes)}</textarea>
+    </div>
+    <div class="d-section">
+      <div class="d-label">Bilder</div>
+      <div class="img-grid" id="d-images"></div>
+      <p class="d-hint only-fine">Du kan også lime inn et bilde (⌘V) eller dra det hit.</p>
+    </div>
+  </div>
+  <div class="sheet-foot"><span class="d-meta" id="d-meta"></span><button type="button" class="danger-btn" data-act="delete-task" id="d-delete">${svg("trash")}<span>Slett</span></button></div>`;
+}
+function chipsHtml(t) {
+  const today = todayKey(), tom = addDays(today, 1);
+  const chip = (rel, label, active) => `<button type="button" class="chip${active ? " is-active" : ""}" data-act="set-date" data-rel="${rel}">${label}</button>`;
+  return chip("today", "I dag", t.date === today) +
+    chip("tomorrow", "I morgen", t.date === tom) +
+    (t.date ? chip("+1", "+1 dag", false) : "") +
+    chip("+7", "+1 uke", false) +
+    `<span class="chip chip-pick">${svg("cal")}Velg dato<input type="date" id="d-date-input" value="${t.date || ""}" aria-label="Velg dato" /></span>` +
+    chip("none", "Generell", !t.date);
+}
+function imagesHtml(t) {
+  const up = S.uploading.get(t.id) || 0;
+  return t.images.map(im => `<button type="button" class="img-thumb" data-act="view-image" data-img="${im.id}" aria-label="Vis bilde"><img src="${im.thumb}" alt="" /></button>`).join("") +
+    Array.from({ length: up }, () => `<div class="img-thumb"><span class="spinner"></span></div>`).join("") +
+    `<button type="button" class="img-add" data-act="add-image">${svg("image")}<span>Legg til bilde</span></button>`;
+}
+function autosize(el) { if (!el) return; el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
+const sheetDirty = { title: false, notes: false };
+let titleTimer = 0, notesTimer = 0;
+function initTaskSheet() {
+  sheetDirty.title = sheetDirty.notes = false;
+  const title = $("#d-title"), notes = $("#d-notes"), sheet = $(".sheet");
+  requestAnimationFrame(() => autosize(title));
+  title.addEventListener("input", () => { sheetDirty.title = true; autosize(title); clearTimeout(titleTimer); titleTimer = setTimeout(saveTitle, 700); });
+  title.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); title.blur(); } });
+  title.addEventListener("blur", saveTitle);
+  notes.addEventListener("input", () => { sheetDirty.notes = true; clearTimeout(notesTimer); notesTimer = setTimeout(saveNotes, 800); });
+  notes.addEventListener("blur", saveNotes);
+  sheet.addEventListener("dragover", (e) => { if (hasFiles(e)) { e.preventDefault(); sheet.classList.add("file-over"); } });
+  sheet.addEventListener("dragleave", (e) => { if (e.target === sheet || !sheet.contains(e.relatedTarget)) sheet.classList.remove("file-over"); });
+  sheet.addEventListener("drop", (e) => {
+    if (!hasFiles(e)) return;
+    e.preventDefault(); sheet.classList.remove("file-over");
+    if (S.sheet && S.sheet.kind === "task") addImages(S.sheet.id, e.dataTransfer.files);
+  });
+  S.chipSig = S.imgSig = "";
+  refreshSheet();
+}
+function hasFiles(e) { return e.dataTransfer && [...(e.dataTransfer.types || [])].includes("Files"); }
+function saveTitle() {
+  clearTimeout(titleTimer);
+  if (!S.sheet || S.sheet.kind !== "task") return;
+  const el = $("#d-title"); if (!el) return;
+  const t = getTask(S.sheet.id); if (!t) return;
+  const v = el.value.replace(/\s+/g, " ").trim();
+  sheetDirty.title = false;
+  if (!v) { el.value = t.title; autosize(el); return; }
+  const parsed = parseTitle(v);
+  if (parsed.time && parsed.time !== t.time) { el.value = parsed.title; autosize(el); update(t.id, { title: parsed.title, time: parsed.time }); }
+  else if (v !== t.title) update(t.id, { title: v });
+}
+function saveNotes() {
+  clearTimeout(notesTimer);
+  if (!S.sheet || S.sheet.kind !== "task") return;
+  const el = $("#d-notes"); if (!el) return;
+  const t = getTask(S.sheet.id); if (!t) return;
+  sheetDirty.notes = false;
+  const v = el.value.replace(/\s+$/, "");
+  if (v !== t.notes) update(t.id, { notes: v });
+}
+function flushSheetEdits() { if (S.sheet && S.sheet.kind === "task") { saveTitle(); saveNotes(); } }
+function refreshSheet() {
+  if (!S.sheet || S.sheet.kind !== "task") return;
+  const head = $("#d-head"); if (!head) return;
+  const t = getTask(S.sheet.id);
+  if (!t) { closeSheetUI(); return; }
+  head.classList.toggle("is-done", t.done);
+  const chk = head.querySelector(".check");
+  chk.setAttribute("aria-label", t.done ? "Marker som ikke utført" : "Marker som utført");
+  const title = $("#d-title");
+  if (document.activeElement !== title && !sheetDirty.title && title.value !== t.title) { title.value = t.title; autosize(title); }
+  const notes = $("#d-notes");
+  if (document.activeElement !== notes && !sheetDirty.notes && notes.value !== t.notes) notes.value = t.notes;
+  const today = todayKey();
+  const late = !t.done && t.date && t.date < today;
+  const dl = t.date ? `${svg("cal")}<span>${esc(relLong(t.date))}</span>${late ? `<span class="late">Forfalt</span>` : ""}`
+    : `${svg("repeat")}<span>Generell – vises hver dag til den er utført</span>`;
+  const dEl = $("#d-date-label"); if (dEl.innerHTML !== dl) dEl.innerHTML = dl;
+  const cs = (t.date || "") + "|" + today;
+  if (cs !== S.chipSig) { S.chipSig = cs; $("#d-chips").innerHTML = chipsHtml(t); }
+  const is = t.images.map(i => i.id).join(",") + "|" + (S.uploading.get(t.id) || 0);
+  if (is !== S.imgSig) { S.imgSig = is; $("#d-images").innerHTML = imagesHtml(t); }
+  const tf = $("#d-time");
+  if (document.activeElement !== tf && tf.value !== (t.time || "")) tf.value = t.time || "";
+  $("#d-time-clear").hidden = !t.time;
+  const meta = [`Opprettet ${stamp(t.createdAt || Date.now())}`];
+  if (t.done && t.doneAt) meta.push(`utført ${stamp(t.doneAt)}`);
+  $("#d-meta").textContent = meta.join(" · ");
+}
+
+function menuSheetHtml() {
+  const u = S.user;
+  let acc;
+  if (LOCAL_MODE) {
+    acc = `<p class="m-p">Appen kjører i <b>demomodus</b>. Oppgavene lagres bare i denne nettleseren, på denne enheten.</p>
+      <p class="m-p muted">Når Firebase er koblet til, lagres alt i skyen, og du kan logge inn med brukernavn på mobilen og Macen.</p>`;
+  } else if (!u) {
+    acc = `<p class="m-p muted">Kobler til …</p>`;
+  } else if (!u.anon) {
+    acc = `<p class="m-p">Innlogget som <b>${esc(u.name)}</b>. Logg inn med det samme brukernavnet og passordet på andre enheter for å se de samme oppgavene.</p>
+      <button type="button" class="btn" data-act="logout">Logg ut</button>`;
+  } else {
+    acc = `<p class="m-p">Lag et brukernavn og passord, så kan du se de samme oppgavene på mobilen og Macen. Da mister du dem heller ikke om du bytter telefon.</p>
+      <div class="form"><input id="acc-user" class="field" placeholder="Brukernavn" autocomplete="username" autocapitalize="none" spellcheck="false" />
+      <input id="acc-pass" class="field" type="password" placeholder="Passord (minst 6 tegn)" autocomplete="new-password" />
+      <button type="button" class="btn primary wide" data-act="secure"${S.accountBusy ? " disabled" : ""}>Lag konto</button></div>
+      <p class="m-sub">Har du allerede en konto?</p>
+      <div class="form"><input id="login-user" class="field" placeholder="Brukernavn" autocomplete="username" autocapitalize="none" spellcheck="false" />
+      <input id="login-pass" class="field" type="password" placeholder="Passord" autocomplete="current-password" />
+      <button type="button" class="btn wide" data-act="login"${S.accountBusy ? " disabled" : ""}>Logg inn</button></div>
+      <p class="m-p muted" style="margin-top:12px">Oppgaver du har laget på denne enheten før du logger inn, blir ikke med over til kontoen.</p>`;
+  }
+  const msg = (S.accountMsg ? `<p class="msg-ok">${esc(S.accountMsg)}</p>` : "") + (S.accountErr ? `<p class="msg-err">${esc(S.accountErr)}</p>` : "");
+  return `<div class="sheet-grip" aria-hidden="true"></div>
+  <div class="sheet-head"><h2 class="sheet-title">Konto og hjelp</h2><button type="button" class="icon-btn ghost" data-act="close-sheet" aria-label="Lukk">${svg("close")}</button></div>
+  <div class="sheet-body">
+    <div class="d-section"><div class="d-label">Konto</div>${acc}${msg}</div>
+    <div class="d-section"><div class="d-label">Slik bruker du appen</div>
+      <ul class="help">
+        <li>Trykk på sirkelen for å krysse av en oppgave.</li>
+        <li>Trykk på selve oppgaven for å skrive notater, legge til bilder eller bytte dag.</li>
+        <li>Du kan lime inn en hel liste i feltet for ny oppgave. Hver linje blir en egen oppgave.</li>
+        <li>Skriv klokkeslett til slutt, f.eks. «Hent Ronja 17.00» eller «Øvelse klokken 18.30». Oppgaver med klokkeslett sorteres etter tid, de uten ligger øverst.</li>
+        <li>Hold fingeren litt på en oppgave, og dra den opp, ned eller til en annen dag. På Mac drar du med musa.</li>
+        <li>Sveip en oppgave mot venstre for å slette den. På Mac dukker en søppelkasse opp når du holder musa over. Du kan angre i varselet nederst.</li>
+        <li>Generelle oppgaver (blå) har ingen dag. De vises nederst på i dag og hver dag fremover til de er utført.</li>
+        <li>Pila ved en dag flytter alt som ikke er gjort, til neste dag.</li>
+        <li>Utførte oppgaver gjemmes unna. Du finner dem under «Utført» øverst.</li>
+        <li>På Mac kan du bla med piltastene og trykke N for ny oppgave.</li>
+        <li>Legg appen på hjemskjermen: i Safari trykker du Del og så «Legg til på Hjem-skjerm».</li>
+      </ul>
+      <div class="version">Huskeliste ${VERSJON}${LOCAL_MODE ? " · demomodus" : ""}</div>
+    </div>
+  </div>`;
+}
+function renderMenuSheet() {
+  if (!S.sheet || S.sheet.kind !== "menu") return;
+  const sh = $(".sheet"); if (sh) sh.innerHTML = menuSheetHtml();
+}
+function validUsername(u) { return /^[a-z0-9._-]{3,30}$/.test(u.trim().toLowerCase()); }
+function authError(e) {
+  const c = e && e.code;
+  if (c === "auth/email-already-in-use" || c === "auth/credential-already-in-use") return "Brukernavnet er allerede tatt. Logg inn i stedet, eller velg et annet.";
+  if (c === "auth/weak-password") return "Passordet må være minst 6 tegn.";
+  if (c === "auth/invalid-email") return "Ugyldig brukernavn.";
+  if (c === "auth/wrong-password" || c === "auth/invalid-credential" || c === "auth/user-not-found" || c === "auth/invalid-login-credentials") return "Feil brukernavn eller passord.";
+  if (c === "auth/too-many-requests") return "For mange forsøk. Vent litt og prøv igjen.";
+  if (c === "auth/operation-not-allowed") return "Brukernavn og passord er ikke slått på i Firebase (Authentication → Email/Password).";
+  if (c === "auth/network-request-failed") return "Får ikke kontakt med serveren. Sjekk nettet.";
+  return "Noe gikk galt. Prøv igjen.";
+}
+async function accountAction(kind) {
+  S.accountMsg = ""; S.accountErr = "";
+  const isSecure = kind === "secure";
+  const user = ($(isSecure ? "#acc-user" : "#login-user") || {}).value || "";
+  const pass = ($(isSecure ? "#acc-pass" : "#login-pass") || {}).value || "";
+  if (!validUsername(user)) { S.accountErr = "Brukernavnet må være 3–30 tegn: bokstavene a–z, tall, punktum, bindestrek eller understrek."; renderMenuSheet(); return; }
+  if (pass.length < 6) { S.accountErr = "Passordet må være minst 6 tegn."; renderMenuSheet(); return; }
+  S.accountBusy = true; renderMenuSheet();
+  try {
+    if (isSecure) { await store.secure(user, pass); S.accountMsg = "Kontoen er laget. Bruk brukernavnet og passordet når du logger inn på andre enheter."; }
+    else { await store.login(user, pass); S.accountMsg = "Du er logget inn. Oppgavene dine hentes nå."; }
+  } catch (e) { console.error(e); S.accountErr = authError(e); }
+  S.accountBusy = false; renderMenuSheet();
+}
+
+// ---------- Bildevisning ----------
+function openLightbox(taskId, imgId) {
+  const t = getTask(taskId); if (!t) return;
+  const idx = t.images.findIndex(i => i.id === imgId); if (idx < 0) return;
+  S.lb = { taskId, idx, confirm: false };
+  const lb = document.createElement("div");
+  lb.className = "lightbox"; lb.id = "lightbox";
+  document.body.appendChild(lb);
+  pushOverlay(closeLightboxNow);
+  drawLightbox();
+}
+function drawLightbox() {
+  const lb = $("#lightbox"); if (!lb || !S.lb) return;
+  const t = getTask(S.lb.taskId);
+  if (!t || !t.images.length) { popOverlayUI(); return; }
+  if (S.lb.idx >= t.images.length) S.lb.idx = t.images.length - 1;
+  const im = t.images[S.lb.idx];
+  const many = t.images.length > 1;
+  lb.innerHTML = `<div class="lb-top"><button type="button" class="lb-btn${S.lb.confirm ? " confirm" : ""}" data-act="lb-delete">${svg("trash")}<span>${S.lb.confirm ? "Trykk igjen for å slette" : "Slett bilde"}</span></button>` +
+    `<span class="lb-count">${many ? `${S.lb.idx + 1} av ${t.images.length}` : ""}</span>` +
+    `<button type="button" class="lb-btn" data-act="lb-close" aria-label="Lukk">${svg("close")}</button></div>` +
+    `<div class="lb-img"><img id="lb-img" src="${imgCache.get(im.id) || im.thumb}" alt="" />` +
+    (many ? `<button type="button" class="lb-nav prev" data-act="lb-prev" aria-label="Forrige">${svg("left")}</button><button type="button" class="lb-nav next" data-act="lb-next" aria-label="Neste">${svg("right")}</button>` : "") +
+    `</div><div class="lb-bottom"></div>`;
+  if (!imgCache.has(im.id)) {
+    const want = im.id;
+    store.getImage(want).then(data => {
+      if (!data) return;
+      imgCache.set(want, data);
+      const cur = S.lb && getTask(S.lb.taskId);
+      if (cur && cur.images[S.lb.idx] && cur.images[S.lb.idx].id === want) { const el = $("#lb-img"); if (el) el.src = data; }
+    }).catch(e => console.warn(e));
+  }
+}
+function closeLightboxNow() { S.lb = null; const lb = $("#lightbox"); if (lb) lb.remove(); }
+function lbStep(d) {
+  const t = S.lb && getTask(S.lb.taskId); if (!t) return;
+  S.lb.idx = (S.lb.idx + d + t.images.length) % t.images.length; S.lb.confirm = false; drawLightbox();
+}
+
+// ---------- Hurtigmeny for dato ----------
+let popEl = null;
+function closePopover() { if (popEl) { popEl.remove(); popEl = null; } }
+function openQaPopover() {
+  if (popEl) { closePopover(); return; }
+  const btn = $("#qa-date"), r = btn.getBoundingClientRect();
+  const today = todayKey(), tom = addDays(today, 1), nextMon = addDays(mondayOf(today), 7);
+  const opt = (rel, label, sub, active) => `<button type="button" data-act="qa-pick" data-rel="${rel}" class="${active ? "is-active" : ""}"><span>${label}</span><span class="sub">${sub}</span></button>`;
+  popEl = document.createElement("div");
+  popEl.className = "popover";
+  popEl.innerHTML = opt(today, "I dag", shortLabel(today), S.qaDate === today) +
+    opt(tom, "I morgen", shortLabel(tom), S.qaDate === tom) +
+    opt(nextMon, "Neste mandag", shortLabel(nextMon), S.qaDate === nextMon) +
+    opt("none", "Generell", "vises hver dag", !S.qaDate) + `<hr />` +
+    `<label><span>Velg dato …</span>${svg("cal")}<input type="date" id="qa-date-input" value="${S.qaDate || ""}" aria-label="Velg dato" /></label>`;
+  document.body.appendChild(popEl);
+  const w = popEl.offsetWidth;
+  popEl.style.top = Math.round(r.bottom + 6) + "px";
+  popEl.style.left = Math.round(Math.max(8, Math.min(r.right - w, innerWidth - w - 8))) + "px";
+}
+function setQaDate(k) {
+  S.qaDate = k || null;
+  closePopover(); renderQuickAdd();
+  $("#qa-input").focus();
+}
+function addFromQuick() {
+  const inp = $("#qa-input");
+  const v = inp.value;
+  if (!v.trim()) { inp.focus(); return; }
+  const t = createTask(v, S.qaDate);
+  inp.value = "";
+  if (t && !visibleInView(t)) toast(t.date ? `Lagt til på ${movedLabel(t.date)}` : "Lagt til som generell");
+}
+function addMany(text, date) {
+  const lines = String(text).split(/\r?\n/)
+    .map(l => l.replace(/^\s*(?:\d{1,3}[.)]|[-*•–])\s+/, "").trim())
+    .filter(Boolean);
+  let n = 0;
+  for (const l of lines) if (createTask(l, date)) n++;
+  if (n) toast(`${plural(n, "oppgave", "oppgaver")} lagt til ${date ? (diffDays(todayKey(), date) <= 1 && diffDays(todayKey(), date) >= 0 ? movedLabel(date) : "på " + movedLabel(date)) : "som generelle"}`);
+}
+function visibleInView(t) {
+  if (S.view === "liste") return true;
+  const today = todayKey();
+  if (S.view === "uke") { const mon = mondayOf(S.anchor), sun = addDays(mon, 6); return t.date ? (t.date >= mon && t.date <= sun) : sun >= today; }
+  if (S.view === "maaned") return t.date ? t.date === S.selected : S.selected >= today;
+  return false;
+}
+
+// ---------- Navigasjon ----------
+function setView(v) {
+  if (v === S.view) { if (v !== "utfort") return; v = S.prevView || "uke"; }
+  closePopover();
+  if (v === "utfort") S.prevView = S.view; else lsSet("view", v);
+  S.view = v; S.inlineAdd = null;
+  if (v === "maaned") { syncSelected(); }
+  else S.qaDate = todayKey();
+  window.scrollTo(0, 0);
+  render();
+}
+function syncSelected() {
+  const a = dateOf(S.anchor), t = new Date();
+  const sameMonth = a.getFullYear() === t.getFullYear() && a.getMonth() === t.getMonth();
+  if (!S.selected || S.selected.slice(0, 7) !== S.anchor.slice(0, 7)) S.selected = sameMonth ? todayKey() : keyOf(new Date(a.getFullYear(), a.getMonth(), 1));
+  S.qaDate = S.selected;
+}
+function nav(dir) {
+  if (S.view === "uke") S.anchor = addDays(mondayOf(S.anchor), 7 * dir);
+  else if (S.view === "maaned") { const d = dateOf(S.anchor); S.anchor = keyOf(new Date(d.getFullYear(), d.getMonth() + dir, 1)); syncSelected(); }
+  else return;
+  S.inlineAdd = null;
+  render();
+}
+function goToday() {
+  S.anchor = todayKey(); S.selected = todayKey();
+  if (S.view === "maaned") S.qaDate = S.selected;
+  render();
+}
+
+// ---------- Varsel nederst ----------
+let toastTimer = 0;
+function toast(msg, opts = {}) {
+  const box = $("#toasts");
+  box.innerHTML = "";
+  const el = document.createElement("div");
+  el.className = "toast" + (opts.kind ? " " + opts.kind : "");
+  el.innerHTML = `<span>${esc(msg)}</span>` + (opts.undo ? `<button type="button">Angre</button>` : "");
+  if (opts.undo) el.querySelector("button").addEventListener("click", () => { clearTimeout(toastTimer); el.remove(); opts.undo(); });
+  box.appendChild(el);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 250); }, opts.duration || (opts.undo ? 5000 : 3000));
+}
+
+// =====================================================================
+//  DRA OG SLIPP (mus og berøring)
+// =====================================================================
+const DRAG = { cand: null, active: false, id: null, src: null, ghost: null, zone: null, list: null, line: null, offX: 0, offY: 0, x: 0, y: 0, raf: 0, origPrev: null, origNext: null, origDate: null };
+const SW = { active: false, el: null, bg: null, id: null, x0: 0, dx: 0, w: 0 };
+let suppressClick = false;
+function blockClick() { suppressClick = true; setTimeout(() => { suppressClick = false; }, 80); }
+
+document.addEventListener("pointerdown", (e) => {
+  if (DRAG.active || SW.active) return;
+  if (e.pointerType === "mouse" && e.button !== 0) return;
+  const src = e.target.closest("[data-task]");
+  if (!src || src.closest(".sheet") || S.view === "utfort") return;
+  if (e.target.closest(".check, .t-del, input, textarea")) return;
+  const c = { id: src.dataset.task, el: src, x: e.clientX, y: e.clientY, pid: e.pointerId, type: e.pointerType, timer: 0 };
+  DRAG.cand = c;
+  // Berøring: hold fingeren litt for å dra (slik at vanlig rulling fortsatt virker)
+  if (e.pointerType !== "mouse") c.timer = setTimeout(() => { if (DRAG.cand === c) startDrag(c.x, c.y); }, 330);
+});
+document.addEventListener("pointermove", (e) => {
+  if (DRAG.active) { DRAG.x = e.clientX; DRAG.y = e.clientY; moveDrag(); return; }
+  if (SW.active) { moveSwipe(e.clientX); return; }
+  const c = DRAG.cand;
+  if (!c || e.pointerId !== c.pid) return;
+  const dx = e.clientX - c.x, dy = e.clientY - c.y, dist = Math.hypot(dx, dy);
+  if (c.type !== "mouse") {
+    // Sveip mot venstre = slett
+    if (dx < -12 && Math.abs(dx) > Math.abs(dy) * 1.4 && c.el.classList.contains("task")) { startSwipe(c, e.clientX); return; }
+    if (dist > 10) cancelCand();
+  } else if (dist > 6) { startDrag(e.clientX, e.clientY); }
+});
+document.addEventListener("pointerup", () => { if (DRAG.active) endDrag(true); else if (SW.active) endSwipe(false); else cancelCand(); });
+document.addEventListener("pointercancel", () => { if (DRAG.active) endDrag(false); else if (SW.active) endSwipe(true); else cancelCand(); });
+document.addEventListener("touchmove", (e) => { if (DRAG.active || SW.active) e.preventDefault(); }, { passive: false });
+document.addEventListener("contextmenu", (e) => { if (DRAG.active || SW.active || (DRAG.cand && DRAG.cand.type !== "mouse")) e.preventDefault(); });
+document.addEventListener("click", (e) => { if (suppressClick) { e.preventDefault(); e.stopPropagation(); suppressClick = false; } }, true);
+
+function cancelCand() { if (DRAG.cand) { clearTimeout(DRAG.cand.timer); DRAG.cand = null; } }
+
+// ---------- Sveip for å slette ----------
+function startSwipe(c, x) {
+  clearTimeout(c.timer); DRAG.cand = null;
+  const el = c.el, list = el.parentElement;
+  if (!list || !getTask(c.id)) return;
+  S.renderBlocked = true;
+  const bg = document.createElement("div");
+  bg.className = "swipe-bg";
+  bg.innerHTML = `${svg("trash")}<span>Slett</span>`;
+  bg.style.top = el.offsetTop + "px"; bg.style.height = el.offsetHeight + "px";
+  bg.style.left = el.offsetLeft + "px"; bg.style.width = el.offsetWidth + "px";
+  list.insertBefore(bg, el);
+  el.classList.add("swiping");
+  Object.assign(SW, { active: true, el, bg, id: c.id, x0: c.x, dx: 0, w: el.offsetWidth });
+  moveSwipe(x);
+}
+function swipeLimit() { return Math.min(120, SW.w * 0.36); }
+function moveSwipe(x) {
+  SW.dx = Math.min(0, x - SW.x0);
+  SW.el.style.transform = `translateX(${SW.dx}px)`;
+  SW.bg.classList.toggle("armed", -SW.dx > swipeLimit());
+}
+function endSwipe(cancel) {
+  const { el, bg, id } = SW;
+  const del = !cancel && -SW.dx > swipeLimit();
+  SW.active = false;
+  blockClick();
+  el.classList.remove("swiping");
+  if (del) {
+    el.classList.add("swipe-out");
+    el.style.transform = "translateX(-105%)";
+    if (navigator.vibrate) try { navigator.vibrate(10); } catch (e) {}
+  } else {
+    el.classList.add("swipe-back");
+    el.style.transform = "";
+  }
+  setTimeout(() => {
+    bg.remove(); el.classList.remove("swipe-back", "swipe-out"); el.style.transform = "";
+    S.renderBlocked = false;
+    if (del) deleteTask(id); else if (S.renderPending) { S.renderPending = false; render(); }
+  }, 200);
+}
+
+// ---------- Dra og slipp ----------
+function startDrag(x, y) {
+  const c = DRAG.cand; if (!c) return;
+  clearTimeout(c.timer); DRAG.cand = null;
+  if (!getTask(c.id) || !document.body.contains(c.el)) return;
+  closePopover();
+  const ae = document.activeElement; if (ae && ae.blur && ae !== document.body) ae.blur();
+  DRAG.active = true; DRAG.id = c.id; DRAG.src = c.el;
+  S.renderBlocked = true;
+  const r = c.el.getBoundingClientRect();
+  const g = c.el.cloneNode(true);
+  g.classList.add("drag-ghost"); g.classList.remove("just-done");
+  const w = Math.min(Math.max(r.width, 160), 320);
+  g.style.width = w + "px";
+  DRAG.offX = Math.min(Math.max(c.x - r.left, 12), w - 12);
+  DRAG.offY = Math.min(c.y - r.top, 40);
+  document.body.appendChild(g);
+  DRAG.ghost = g;
+  c.el.classList.add("drag-src");
+  document.body.classList.add("is-dragging");
+  // Husk opprinnelig plass (blant oppgavene uten klokkeslett) for å se om noe faktisk endret seg
+  const t = getTask(c.id);
+  DRAG.origDate = t.date || null;
+  const parentList = c.el.parentElement;
+  const sib = parentList ? [...parentList.children].filter(n => n.dataset && n.dataset.task && !n.dataset.timed) : [];
+  const i = sib.indexOf(c.el);
+  DRAG.origPrev = i > 0 ? sib[i - 1].dataset.task : null;
+  DRAG.origNext = i >= 0 && i < sib.length - 1 ? sib[i + 1].dataset.task : null;
+  DRAG.line = document.createElement("div"); DRAG.line.className = "drop-line";
+  if (navigator.vibrate) try { navigator.vibrate(12); } catch (e) {}
+  DRAG.x = x; DRAG.y = y;
+  moveDrag();
+  DRAG.raf = requestAnimationFrame(autoScroll);
+}
+function moveDrag() {
+  const g = DRAG.ghost; if (!g) return;
+  g.style.transform = `translate3d(${DRAG.x - DRAG.offX}px, ${DRAG.y - DRAG.offY}px, 0) rotate(1.5deg)`;
+  const hit = document.elementFromPoint(DRAG.x, DRAG.y);
+  const zone = hit ? hit.closest("[data-drop-date]") : null;
+  if (zone !== DRAG.zone) {
+    if (DRAG.zone) DRAG.zone.classList.remove("drop-hover");
+    DRAG.zone = zone;
+    if (zone) zone.classList.add("drop-hover");
+  }
+  let list = null;
+  if (zone) list = zone.matches("[data-list]") ? zone : zone.querySelector("[data-list]");
+  if (list && list.dataset.noreorder) list = null;
+  const tk = getTask(DRAG.id);
+  const dated = !!(zone && zone.dataset.dropDate);
+  // Oppgaver med klokkeslett plasseres etter tid, så de får ingen plasseringslinje
+  if (list && dated && tk && tk.time) list = null;
+  DRAG.list = list;
+  if (!list) { if (DRAG.line.parentNode) DRAG.line.remove(); return; }
+  const kids = [...list.children].filter(n => n.dataset && n.dataset.task && n !== DRAG.src);
+  const movable = dated ? kids.filter(n => !n.dataset.timed) : kids;
+  let before = null;
+  for (const it of movable) { const rr = it.getBoundingClientRect(); if (DRAG.y < rr.top + rr.height / 2) { before = it; break; } }
+  if (!before && dated) before = kids.find(n => n.dataset.timed) || null;   // aldri under oppgavene med klokkeslett
+  if (before) { if (DRAG.line.nextSibling !== before || DRAG.line.parentNode !== list) list.insertBefore(DRAG.line, before); }
+  else if (DRAG.line.parentNode !== list || DRAG.line.nextSibling) list.appendChild(DRAG.line);
+}
+function autoScroll() {
+  if (!DRAG.active) return;
+  const tb = document.querySelector(".topbar").getBoundingClientRect().bottom;
+  const topEdge = tb + 45, botEdge = innerHeight - 80;
+  let dy = 0;
+  if (DRAG.y < topEdge) dy = -Math.min(22, Math.ceil((topEdge - DRAG.y) / 5));
+  else if (DRAG.y > botEdge) dy = Math.min(22, Math.ceil((DRAG.y - botEdge) / 4));
+  if (dy) { window.scrollBy(0, dy); moveDrag(); }
+  DRAG.raf = requestAnimationFrame(autoScroll);
+}
+function endDrag(commit) {
+  cancelAnimationFrame(DRAG.raf);
+  const id = DRAG.id, zone = DRAG.zone, list = DRAG.list, line = DRAG.line;
+  let target = null;
+  if (commit && zone) {
+    const newDate = zone.dataset.dropDate || null;
+    let order = null, prevId = null, nextId = null;
+    if (list && line && line.parentNode === list) {
+      const ids = []; let idx = -1;
+      for (const ch of list.children) {
+        if (ch === line) { idx = ids.length; continue; }
+        const tid = ch.dataset && ch.dataset.task;
+        if (tid && tid !== id && !(newDate && ch.dataset.timed)) ids.push(tid);
+      }
+      prevId = idx > 0 ? ids[idx - 1] : null;
+      nextId = idx >= 0 && idx < ids.length ? ids[idx] : null;
+      const prev = prevId && getTask(prevId), next = nextId && getTask(nextId);
+      if (prev && next) order = (prev.order + next.order) / 2;
+      else if (prev) order = prev.order + 1;
+      else if (next) order = next.order - 1;
+      else order = 1;
+    }
+    target = { newDate, order, prevId, nextId };
+  }
+  if (DRAG.ghost) DRAG.ghost.remove();
+  if (line && line.parentNode) line.remove();
+  if (zone) zone.classList.remove("drop-hover");
+  if (DRAG.src) DRAG.src.classList.remove("drag-src");
+  document.body.classList.remove("is-dragging");
+  DRAG.active = false; DRAG.ghost = null; DRAG.zone = null; DRAG.list = null; DRAG.src = null;
+  blockClick();
+  S.renderBlocked = false;
+  if (target) {
+    const sameDate = target.newDate === DRAG.origDate;
+    const samePlace = sameDate && (target.order == null || (target.prevId === DRAG.origPrev && target.nextId === DRAG.origNext));
+    if (!samePlace) moveTask(id, target.newDate, target.order);
+  }
+  render();
+}
+
+// =====================================================================
+//  HENDELSER
+// =====================================================================
+document.addEventListener("click", (e) => {
+  if (popEl && !e.target.closest(".popover") && !e.target.closest("#qa-date")) closePopover();
+  const el = e.target.closest("[data-act],[data-task]");
+  if (!el) return;
+  if (!el.dataset.act) { if (!el.closest(".sheet")) openTask(el.dataset.task); return; }
+  const a = el.dataset.act, d = el.dataset;
+  switch (a) {
+    case "view": setView(d.view); break;
+    case "menu": openMenu(); break;
+    case "prev": nav(-1); break;
+    case "next": nav(1); break;
+    case "go-today": goToday(); break;
+    case "back": setView(S.prevView || "uke"); break;
+    case "qa-date": openQaPopover(); break;
+    case "qa-pick": setQaDate(d.rel === "none" ? null : d.rel); break;
+    case "qa-add": addFromQuick(); break;
+    case "toggle": toggleDone(d.id); break;
+    case "inline-add": {
+      S.inlineAdd = d.date; renderContent();
+      const inp = document.getElementById("ia-" + d.date); if (inp) inp.focus();
+      break;
+    }
+    case "toggle-done-list": { const k = d.key; if (S.openDone.has(k)) S.openDone.delete(k); else S.openDone.add(k); renderContent(); break; }
+    case "push-day": pushDay(d.date); break;
+    case "select-day": S.selected = d.date; S.qaDate = d.date; S.inlineAdd = null; renderQuickAdd(); renderContent(); break;
+    case "overdue-today": overdueToToday(); break;
+    case "show-overdue": setView("liste"); break;
+    case "hide-local": S.localNoticeHidden = true; lsSet("localNoticeHidden", true); renderBanners(); break;
+    case "dismiss-error": S.error = ""; renderBanners(); break;
+    case "search-done": S.doneSearch = S.search; S.toolbarSig = ""; setView("utfort"); break;
+    case "load-done": loadOlderDone(false); break;
+    case "load-all-done": loadOlderDone(true); break;
+    case "close-sheet": closeSheetUI(); break;
+    case "set-date": if (S.sheet && S.sheet.kind === "task") setTaskDate(S.sheet.id, d.rel); break;
+    case "delete-task": {
+      if (S.sheet && S.sheet.kind === "task") deleteTask(S.sheet.id);
+      break;
+    }
+    case "del": deleteTask(d.id); break;
+    case "clear-time": {
+      if (S.sheet && S.sheet.kind === "task") update(S.sheet.id, { time: null });
+      break;
+    }
+    case "add-image": if (S.sheet && S.sheet.kind === "task") { S.fileTarget = S.sheet.id; $("#file-input").click(); } break;
+    case "view-image": if (S.sheet && S.sheet.kind === "task") openLightbox(S.sheet.id, d.img); break;
+    case "lb-close": popOverlayUI(); break;
+    case "lb-prev": lbStep(-1); break;
+    case "lb-next": lbStep(1); break;
+    case "lb-delete": {
+      if (!S.lb) break;
+      if (!S.lb.confirm) { S.lb.confirm = true; drawLightbox(); break; }
+      const t = getTask(S.lb.taskId); const im = t && t.images[S.lb.idx];
+      if (im) removeImage(t.id, im.id);
+      S.lb.confirm = false;
+      const left = getTask(S.lb.taskId);
+      if (!left || !left.images.length) popOverlayUI(); else drawLightbox();
+      break;
+    }
+    case "secure": accountAction("secure"); break;
+    case "login": accountAction("login"); break;
+    case "logout": store.logout().catch(e => toast(authError(e), { kind: "error" })); S.accountMsg = ""; break;
+  }
+});
+document.addEventListener("click", (e) => {
+  const inp = e.target;
+  if (inp && inp.tagName === "INPUT" && inp.type === "date" && typeof inp.showPicker === "function") { try { inp.showPicker(); } catch (err) {} }
+});
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.id === "file-input") { const id = S.fileTarget; const files = [...t.files]; t.value = ""; if (id && files.length) addImages(id, files); }
+  else if (t.id === "d-date-input") { if (S.sheet && S.sheet.kind === "task") setTaskDate(S.sheet.id, t.value || "none"); }
+  else if (t.id === "d-time") { if (S.sheet && S.sheet.kind === "task") update(S.sheet.id, { time: /^\d{2}:\d{2}$/.test(t.value) ? t.value : null }); }
+  else if (t.id === "qa-date-input") { if (t.value) setQaDate(t.value); }
+});
+document.addEventListener("input", (e) => {
+  if (e.target.id === "search") { S.search = e.target.value; renderContent(); }
+  else if (e.target.id === "done-search") { S.doneSearch = e.target.value; renderContent(); }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    if (DRAG.active) { endDrag(false); return; }
+    if (popEl) { closePopover(); return; }
+    if (S.lb) { popOverlayUI(); return; }
+    if (S.sheet) { closeSheetUI(); return; }
+    if (S.inlineAdd) { S.inlineAdd = null; renderContent(); return; }
+    return;
+  }
+  if (e.isComposing) return;
+  const tg = e.target;
+  if (tg.id === "qa-input" && e.key === "Enter") { e.preventDefault(); addFromQuick(); return; }
+  if (tg.classList && tg.classList.contains("ia-input")) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const key = tg.dataset.date, v = tg.value;
+      if (v.trim()) { tg.value = ""; createTask(v, key === "none" ? null : key); }
+      else { S.inlineAdd = null; renderContent(); }
+    }
+    return;
+  }
+  if (S.lb) { if (e.key === "ArrowLeft") lbStep(-1); else if (e.key === "ArrowRight") lbStep(1); return; }
+  if ((tg.id === "acc-pass" || tg.id === "login-pass") && e.key === "Enter") { accountAction(tg.id === "acc-pass" ? "secure" : "login"); return; }
+  const typing = tg.tagName === "INPUT" || tg.tagName === "TEXTAREA" || tg.isContentEditable;
+  if (typing || S.sheet || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === "ArrowLeft") { nav(-1); }
+  else if (e.key === "ArrowRight") { nav(1); }
+  else if (e.key === "n" || e.key === "N") { e.preventDefault(); $("#qa-input").focus(); }
+  else if ((e.key === "Enter" || e.key === " ") && tg.dataset && tg.dataset.task) { e.preventDefault(); openTask(tg.dataset.task); }
+});
+document.addEventListener("focusout", (e) => {
+  const tg = e.target;
+  if (!tg.classList || !tg.classList.contains("ia-input") || S.renderingNow) return;
+  const id = tg.id, key = tg.dataset.date, v0 = tg.value;
+  setTimeout(() => {
+    const cur = document.getElementById(id);
+    if (cur && document.activeElement === cur) return;   // fortsatt i feltet (f.eks. etter at listen ble tegnet på nytt)
+    const v = cur ? cur.value : v0;
+    if (S.inlineAdd === key) S.inlineAdd = null;
+    if (v.trim()) createTask(v, key === "none" ? null : key);   // tekst som ikke er lagt til, blir lagret i stedet for å forsvinne
+    renderContent();
+  }, 150);
+});
+document.addEventListener("paste", (e) => {
+  // Lim inn en liste i et legg-til-felt: hver linje blir en egen oppgave
+  const tg = e.target;
+  if (tg && (tg.id === "qa-input" || (tg.classList && tg.classList.contains("ia-input")))) {
+    const text = e.clipboardData ? e.clipboardData.getData("text/plain") : "";
+    if (text && /\n/.test(text.trim())) {
+      e.preventDefault();
+      const date = tg.id === "qa-input" ? S.qaDate : (tg.dataset.date === "none" ? null : tg.dataset.date);
+      addMany(text, date);
+    }
+    return;
+  }
+  if (!S.sheet || S.sheet.kind !== "task") return;
+  const files = [...(e.clipboardData && e.clipboardData.items || [])].filter(i => i.kind === "file" && i.type.startsWith("image/")).map(i => i.getAsFile()).filter(Boolean);
+  if (files.length) { e.preventDefault(); addImages(S.sheet.id, files); }
+});
+window.addEventListener("online", () => { S.offline = false; renderBanners(); });
+window.addEventListener("offline", () => { S.offline = true; renderBanners(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) checkNewDay(); });
+setInterval(checkNewDay, 30000);
+function checkNewDay() {
+  const t = todayKey();
+  if (t === S.lastToday) return;
+  const old = S.lastToday; S.lastToday = t;
+  if (S.qaDate === old) S.qaDate = t;
+  if (S.anchor === old) S.anchor = t;
+  if (S.selected === old) S.selected = t;
+  S.toolbarSig = "";
+  render();
+}
+
+// =====================================================================
+//  OPPSTART
+// =====================================================================
+$("#logo").innerHTML = svg("check", "", 3);
+$("#done-ic").outerHTML = svg("done");
+$("#btn-menu").innerHTML = svg("menu");
+$("#qa-icon").innerHTML = svg("plus");
+$("#qa-submit").insertAdjacentHTML("beforeend", svg("plus"));
+
+const hooks = {
+  onTasks(list) {
+    S.live = new Map(list.map(t => [t.id, t]));
+    S.loaded = true;
+    cleanupDeleted();
+    scheduleRender();
+  },
+  onReset() {
+    S.live = new Map(); S.older = new Map(); S.fetched = new Set();
+    S.doneCursor = null; S.allDoneLoaded = false; S.loaded = false;
+    if (S.sheet && S.sheet.kind === "task") closeSheetUI();
+    scheduleRender();
+  },
+  onUser(u) { S.user = u; renderMenuSheet(); },
+  onError(e) { console.error(e); S.error = errorText(e); S.loaded = true; scheduleRender(); },
+};
+
+async function boot() {
+  render();
+  try {
+    store = LOCAL_MODE ? createLocalStore() : await createFirebaseStore();
+  } catch (e) {
+    console.error(e);
+    S.error = "Fikk ikke lastet Firebase. Sjekk nettforbindelsen og last inn siden på nytt.";
+    S.loaded = true; render(); return;
+  }
+  store.start(hooks);
+}
+boot();
+
+if ("serviceWorker" in navigator && location.protocol === "https:" && !params.has("nosw")) {
+  window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+}
+</script>
+</body>
+</html>
