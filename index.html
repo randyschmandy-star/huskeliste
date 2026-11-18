@@ -383,6 +383,14 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   .sheet-head { padding-top: 10px; }
 }
 @media (pointer: coarse) { .only-fine { display: none; } }
+.inst-head { display: flex; gap: 14px; align-items: center; }
+.inst-head img { width: 56px; height: 56px; border-radius: 14px; box-shadow: var(--sh-sm); flex-shrink: 0; }
+.inst-sub { margin: 4px 0 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
+.inst-steps { margin: 16px 0 0; padding: 0; list-style: none; counter-reset: s; display: flex; flex-direction: column; gap: 12px; }
+.inst-steps li { counter-increment: s; display: flex; gap: 12px; align-items: flex-start; line-height: 1.5; }
+.inst-steps li::before { content: counter(s); flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 700; display: grid; place-items: center; font-size: 13px; }
+.inst-steps .ic { display: inline-block; width: 18px; height: 18px; vertical-align: -3px; color: var(--accent); }
+.inst-note { margin: 16px 0 0; padding: 12px 14px; background: var(--accent-tint); border: 1px solid var(--accent-soft); border-radius: 12px; color: var(--accent-2); font-size: 14px; line-height: 1.5; }
 
 /* ---------- Lysbilde ---------- */
 .lightbox { position: fixed; inset: 0; z-index: 300; background: rgba(22,28,24,.94); display: flex; flex-direction: column; animation: fadeIn .18s ease; }
@@ -514,6 +522,8 @@ const P = {
   cloud: '<path d="M7 18h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 9.6 4.2 4.2 0 0 0 7 18z"/><path d="M4 4l16 16"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>',
   repeat: '<path d="M17 2.5l3 3-3 3"/><path d="M4 11V9.5a4 4 0 0 1 4-4h12"/><path d="M7 21.5l-3-3 3-3"/><path d="M20 13v1.5a4 4 0 0 1-4 4H4"/>',
+  download: '<path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 20h14"/>',
+  share: '<path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M5 11v9h14v-9"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
 };
 function svg(name, cls = "", sw = 2) {
@@ -592,6 +602,8 @@ const S = {
   lastToday: todayKey(), toolbarSig: "",
   accountMsg: "", accountErr: "", accountBusy: false,
   localNoticeHidden: lsGet("localNoticeHidden", false),
+  installHidden: lsGet("installHidden", false),
+  loginHintHidden: lsGet("loginHintHidden", false),
 };
 if (S.view === "maaned") S.qaDate = S.selected;
 
@@ -1077,6 +1089,8 @@ function renderBanners() {
   if (S.error) out.push(`<div class="banner error">${svg("alert")}<span class="b-text">${esc(S.error)}</span><span class="b-actions"><button type="button" class="btn" data-act="dismiss-error">Lukk</button></span></div>`);
   if (S.offline && !LOCAL_MODE) out.push(`<div class="banner info">${svg("cloud")}<span class="b-text">Du er frakoblet. Endringer lagres på enheten og sendes når nettet er tilbake.</span></div>`);
   if (LOCAL_MODE && !S.localNoticeHidden) out.push(`<div class="banner info">${svg("info")}<span class="b-text">Demomodus: oppgavene lagres bare i denne nettleseren til Firebase er koblet til.</span><span class="b-actions"><button type="button" class="btn" data-act="hide-local">Skjul</button></span></div>`);
+  if ((IS_IOS || IS_ANDROID) && canInstall() && !S.installHidden) out.push(`<div class="banner info">${svg("download")}<span class="b-text">Legg Huskeliste på hjemskjermen, så åpner den som en egen app.</span><span class="b-actions"><button type="button" class="btn primary" data-act="install">Installer</button><button type="button" class="btn" data-act="hide-install">Ikke nå</button></span></div>`);
+  if (!LOCAL_MODE && S.loaded && S.user && S.user.anon && !S.loginHintHidden && !allTasks().length) out.push(`<div class="banner info">${svg("menu")}<span class="b-text">Har du allerede en konto? Logg inn for å hente oppgavene dine.</span><span class="b-actions"><button type="button" class="btn primary" data-act="menu">Logg inn</button><button type="button" class="btn" data-act="hide-login-hint">Skjul</button></span></div>`);
   if (S.loaded && S.view !== "utfort") {
     const n = overdueList().length;
     if (n) out.push(`<div class="banner warn">${svg("alert")}<span class="b-text">${n === 1 ? "1 oppgave" : n + " oppgaver"} fra tidligere dager er ikke gjort.</span><span class="b-actions"><button type="button" class="btn warm" data-act="overdue-today">Flytt til i dag</button>${S.view !== "liste" ? `<button type="button" class="btn" data-act="show-overdue">Vis</button>` : ""}</span></div>`);
@@ -1319,6 +1333,12 @@ function openTask(id) {
   S.sheet = { kind: "task", id };
   mountSheet(true);
 }
+function openInstall() {
+  closePopover();
+  if (S.sheet) { flushSheetEdits(); S.sheet = { kind: "install" }; mountSheet(false); return; }
+  S.sheet = { kind: "install" };
+  mountSheet(true);
+}
 function openMenu() {
   closePopover();
   S.accountMsg = ""; S.accountErr = "";
@@ -1329,7 +1349,9 @@ function openMenu() {
 function mountSheet(fresh) {
   const root = $("#sheet-root");
   const kind = S.sheet.kind;
-  root.innerHTML = `<div class="sheet-backdrop" data-act="close-sheet"></div><aside class="sheet sheet-${kind}" role="dialog" aria-modal="true" aria-label="${kind === "task" ? "Oppgave" : "Konto og hjelp"}">${kind === "task" ? taskSheetHtml(getTask(S.sheet.id)) : menuSheetHtml()}</aside>`;
+  const label = kind === "task" ? "Oppgave" : kind === "install" ? "Installer Huskeliste" : "Konto og hjelp";
+  const body = kind === "task" ? taskSheetHtml(getTask(S.sheet.id)) : kind === "install" ? installSheetHtml() : menuSheetHtml();
+  root.innerHTML = `<div class="sheet-backdrop" data-act="close-sheet"></div><aside class="sheet sheet-${kind}" role="dialog" aria-modal="true" aria-label="${label}">${body}</aside>`;
   if (fresh) {
     pushOverlay(closeSheetNow);
     document.body.classList.add("sheet-open");
@@ -1495,6 +1517,7 @@ function menuSheetHtml() {
   return `<div class="sheet-grip" aria-hidden="true"></div>
   <div class="sheet-head"><h2 class="sheet-title">Konto og hjelp</h2><button type="button" class="icon-btn ghost" data-act="close-sheet" aria-label="Lukk">${svg("close")}</button></div>
   <div class="sheet-body">
+    ${canInstall() ? `<div class="d-section"><div class="d-label">Installer som app</div><p class="m-p">Legg Huskeliste på hjemskjermen. Da får den eget ikon og åpner i eget vindu, som en vanlig app.</p><button type="button" class="btn primary wide" data-act="install">${svg("download")}Installer Huskeliste</button></div>` : ""}
     <div class="d-section"><div class="d-label">Konto</div>${acc}${msg}</div>
     <div class="d-section"><div class="d-label">Slik bruker du appen</div>
       <ul class="help">
@@ -1508,7 +1531,7 @@ function menuSheetHtml() {
         <li>Pila ved en dag flytter alt som ikke er gjort, til neste dag.</li>
         <li>Utførte oppgaver gjemmes unna. Du finner dem under «Utført» øverst.</li>
         <li>På Mac kan du bla med piltastene og trykke N for ny oppgave.</li>
-        <li>Legg appen på hjemskjermen: i Safari trykker du Del og så «Legg til på Hjem-skjerm».</li>
+        <li>Installer appen på telefonen med knappen «Installer Huskeliste» øverst i denne menyen.</li>
       </ul>
       <div class="version">Huskeliste ${VERSJON}${LOCAL_MODE ? " · demomodus" : ""}</div>
     </div>
@@ -1543,6 +1566,62 @@ async function accountAction(kind) {
     else { await store.login(user, pass); S.accountMsg = "Du er logget inn. Oppgavene dine hentes nå."; }
   } catch (e) { console.error(e); S.accountErr = authError(e); }
   S.accountBusy = false; renderMenuSheet();
+}
+
+// ---------- Installer som app ----------
+// Android og PC (Chrome, Edge): nettleserens egen installasjon.
+// iPhone/iPad: Legg til på Hjem-skjerm. Mac Safari: Arkiv > Legg til i Dock.
+const UA = navigator.userAgent;
+const IS_IOS = /iPad|iPhone|iPod/.test(UA) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const IS_ANDROID = /Android/.test(UA);
+const IS_MAC_SAFARI = !IS_IOS && /Macintosh/.test(UA) && /Safari\//.test(UA) && !/Chrome|Chromium|CriOS|Edg|Firefox|FxiOS|OPR/.test(UA);
+const IN_APP_BROWSER = /FBAN|FBAV|Instagram|Messenger|Line\/|Snapchat/.test(UA);
+let installPrompt = null;
+function isInstalled() { return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true; }
+function canInstall() { return !isInstalled() && !!(installPrompt || IS_IOS || IS_ANDROID || IS_MAC_SAFARI); }
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; renderBanners(); renderMenuSheet(); });
+window.addEventListener("appinstalled", () => {
+  installPrompt = null;
+  if (S.sheet && S.sheet.kind === "install") closeSheetUI();
+  toast("Huskeliste er installert. Du finner den blant appene dine.");
+  renderBanners(); renderMenuSheet();
+});
+async function startInstall() {
+  if (installPrompt && !IN_APP_BROWSER) {
+    const ev = installPrompt; installPrompt = null;
+    if (S.sheet) closeSheetUI();
+    ev.prompt();
+    try { await ev.userChoice; } catch (e) {}
+    renderBanners(); renderMenuSheet();
+    return;
+  }
+  openInstall();
+}
+function installSheetHtml() {
+  let sub, steps, note = "";
+  if (IN_APP_BROWSER) {
+    sub = "Du har åpnet Huskeliste inne i en annen app. Den må åpnes i nettleseren for å kunne installeres.";
+    steps = ["Trykk på <b>•••</b> eller menyen i appen du er i.", "Velg <b>Åpne i Safari</b> (iPhone) eller <b>Åpne i Chrome</b> (Android).", "Trykk på <b>Installer</b> i Huskeliste igjen."];
+  } else if (IS_IOS) {
+    sub = "På iPhone og iPad legger du appen på Hjem-skjermen.";
+    steps = [`Trykk <b>Del</b> ${svg("share")} i Safari. Ser du den ikke, trykker du på <b>•••</b> nederst først.`, "Bla ned og velg <b>Legg til på Hjem-skjerm</b>.", "Står det <b>Åpne som nettapp</b>, sjekker du at den er slått på. Trykk så <b>Legg til</b>."];
+    note = "Åpne Huskeliste fra Hjem-skjermen og logg inn med brukernavnet ditt der. Appen på Hjem-skjermen husker ikke innloggingen fra Safari.";
+  } else if (IS_MAC_SAFARI) {
+    sub = "På Mac installeres appen fra Safari-menyen.";
+    steps = ["Velg <b>Arkiv</b> i menylinjen øverst.", "Velg <b>Legg til i Dock</b> og trykk <b>Legg til</b>."];
+    note = "Huskeliste ligger da i Dock og i Programmer-mappen, og åpner i eget vindu.";
+  } else if (IS_ANDROID) {
+    sub = "På Android installerer du appen fra nettlesermenyen.";
+    steps = ["Trykk på menyen <b>⋮</b> øverst til høyre i Chrome.", "Velg <b>Installer app</b> eller <b>Legg til på startsiden</b>.", "Trykk <b>Installer</b>."];
+    note = "Huskeliste får da eget ikon og åpner i eget vindu, uten adresselinjen.";
+  } else {
+    sub = "";
+    steps = ["Åpne nettlesermenyen og velg <b>Installer app</b> eller <b>Legg til på startsiden</b>."];
+  }
+  return `<div class="sheet-grip" aria-hidden="true"></div>
+  <div class="sheet-head"><div class="inst-head" style="flex:1"><img src="icon-192.png" alt="" /><div><h2 class="sheet-title" style="margin:0">Installer Huskeliste</h2>${sub ? `<p class="inst-sub">${sub}</p>` : ""}</div></div><button type="button" class="icon-btn ghost" data-act="close-sheet" aria-label="Lukk">${svg("close")}</button></div>
+  <div class="sheet-body"><ol class="inst-steps">${steps.map(x => `<li><span>${x}</span></li>`).join("")}</ol>${note ? `<p class="inst-note">${note}</p>` : ""}
+  <div style="margin-top:18px"><button type="button" class="btn wide" data-act="close-sheet">Skjønner</button></div></div>`;
 }
 
 // ---------- Bildevisning ----------
@@ -1902,6 +1981,9 @@ document.addEventListener("click", (e) => {
     case "overdue-today": overdueToToday(); break;
     case "show-overdue": setView("liste"); break;
     case "hide-local": S.localNoticeHidden = true; lsSet("localNoticeHidden", true); renderBanners(); break;
+    case "install": startInstall(); break;
+    case "hide-install": S.installHidden = true; lsSet("installHidden", true); renderBanners(); break;
+    case "hide-login-hint": S.loginHintHidden = true; lsSet("loginHintHidden", true); renderBanners(); break;
     case "dismiss-error": S.error = ""; renderBanners(); break;
     case "search-done": S.doneSearch = S.search; S.toolbarSig = ""; setView("utfort"); break;
     case "load-done": loadOlderDone(false); break;
